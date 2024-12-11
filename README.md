@@ -8,6 +8,8 @@ Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://
 
 `cd cms-karma-kebab`
 
+`npm install` - Downloads project dependencies listed in package.json and creates a node_modules folder to store them.
+
 `npm run dev`
 
 
