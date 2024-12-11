@@ -1,0 +1,55 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cms-karma-kebab-1-sys-config
+  namespace: india-dev
+  uid: 99e716c4-b871-4463-a656-ddaefdb57a7c
+  resourceVersion: '92824619'
+  creationTimestamp: '2024-12-11T18:35:08Z'
+  ownerReferences:
+    - apiVersion: v1
+      kind: Pod
+      name: cms-karma-kebab-1-build
+      uid: e14849a9-c100-4c24-9bb6-bda78a6047de
+  managedFields:
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: v1
+      time: '2024-12-11T18:35:08Z'
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:data':
+          .: {}
+          'f:registries.conf': {}
+        'f:metadata':
+          'f:ownerReferences':
+            .: {}
+            'k:{"uid":"e14849a9-c100-4c24-9bb6-bda78a6047de"}': {}
+data:
+  registries.conf: |
+    unqualified-search-registries = ["registry.redhat.io", "registry.access.redhat.com", "quay.io", "docker.io"]
+    short-name-mode = ""
+
+    [[registry]]
+      prefix = ""
+      location = "quay.io/openshift-release-dev/ocp-release"
+
+      [[registry.mirror]]
+        location = "arosvc.azurecr.io/openshift-release-dev/ocp-release"
+        pull-from-mirror = "digest-only"
+
+    [[registry]]
+      prefix = ""
+      location = "quay.io/openshift-release-dev/ocp-release-nightly"
+
+      [[registry.mirror]]
+        location = "arosvc.azurecr.io/openshift-release-dev/ocp-release-nightly"
+        pull-from-mirror = "digest-only"
+
+    [[registry]]
+      prefix = ""
+      location = "quay.io/openshift-release-dev/ocp-v4.0-art-dev"
+
+      [[registry.mirror]]
+        location = "arosvc.azurecr.io/openshift-release-dev/ocp-v4.0-art-dev"
+        pull-from-mirror = "digest-only"
