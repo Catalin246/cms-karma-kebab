@@ -10,7 +10,7 @@ import HelloWorld from './components/HelloWorld.vue'
     <a href="https://vuejs.org/" target="_blank">
       <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
     </a> -->
-    <p>This is Karma Kebab CMS. Test the CI/CD pipeline.</p>
+    <p>This is Karma Kebab CMS</p>
   </div>
   <!-- <HelloWorld msg="Vite + Vue" /> -->
 </template>
