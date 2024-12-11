@@ -1,0 +1,55 @@
+name: CI/CD Pipeline for OpenShift
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to main branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Node.js environment (adjust if you're using other languages or tools)
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'  # Choose the version of Node.js you're using
+
+      # Step 3: Install dependencies and build the app
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build the application
+        run: npm run build
+
+      # Step 4: Log in to OpenShift using the OpenShift token and server URL
+      - name: Log in to OpenShift
+        run: |
+          oc login --token=${{ secrets.OPENSHIFT_TOKEN }} --server=${{ secrets.OPENSHIFT_SERVER }}
+
+      # Step 5: Set up the OpenShift project (replace with your actual project name)
+      - name: Set OpenShift Project
+        run: oc project your-project-name  # Replace with your OpenShift project
+
+      # Step 6: Deploy to OpenShift (adjust depending on your app's deployment method)
+      - name: Deploy to OpenShift
+        run: |
+          oc apply -f k8s/deployment.yml   # Adjust to your deployment YAML location
+
+      # Optional: If you're using OpenShift pipelines, you can trigger a pipeline
+      - name: Trigger OpenShift Pipeline
+        run: |
+          oc start-build your-build-name   # Trigger OpenShift build pipeline (adjust as needed)
+
+      # Optional: Push the Docker image to OpenShift image registry (if using Docker builds)
+      - name: Push Docker image to OpenShift registry
+        run: |
+          docker build -t your-image-name .
+          docker login -u $(oc whoami) -p $(oc whoami -t)  # Login using the current user token
+          docker tag your-image-name image-registry.openshift-image-registry.svc:5000/your-project/your-image-name
+          docker push image-registry.openshift-image-registry.svc:5000/your-project/your-image-name
