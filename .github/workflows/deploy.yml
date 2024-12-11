@@ -30,16 +30,33 @@ jobs:
           oc start-build cms-karma-kebab --wait  # Trigger the build and wait for completion
 
       # Step 5: Restart the application by deleting the old running pod 
-      - name: Delete running cms-karma-kebab pods
+      - name: Restart the application by deleting the old running pod
         run: |
           oc get pods --selector=app=cms-karma-kebab --field-selector=status.phase=Running -o name | xargs -I {} oc delete {} --ignore-not-found=true
 
-      # Step 6: Wait for the deployment to complete and ensure the pod is running
+      # Step 6: Clean up previous pod (delete pod 'cms-karma-kebab-n' when 'cms-karma-kebab-n+1' is created)
+      - name: Clean up previous pod
+        run: |
+          # Get the name of the latest running pod
+          CURRENT_POD=$(oc get pods --selector=app=cms-karma-kebab --field-selector=status.phase=Running -o jsonpath='{.items[0].metadata.name}')
+          
+          # Get the previous pod (in this case, find the pod with the lowest version)
+          PREVIOUS_POD=$(oc get pods --selector=app=cms-karma-kebab --field-selector=status.phase=Running -o custom-columns=":metadata.name" | grep -v $CURRENT_POD | sort | head -n 1)
+          
+          # Delete the previous pod if it exists
+          if [ -n "$PREVIOUS_POD" ]; then
+            echo "Deleting previous pod: $PREVIOUS_POD"
+            oc delete pod $PREVIOUS_POD
+          else
+            echo "No previous pod found, skipping clean-up."
+          fi
+
+      # Step 7: Wait for the deployment to complete and ensure the pod is running
       - name: Wait for Pod to be Running
         run: |
           kubectl rollout status deployment/cms-karma-kebab --timeout=60s
 
-      # Step 7: Run npm build inside the deployed pod
+      # Step 8: Run npm build inside the deployed pod
       - name: Run npm run build inside the pod
         run: |
           # Get the name of the running cms-karma-kebab pod
