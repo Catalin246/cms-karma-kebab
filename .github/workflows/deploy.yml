@@ -14,30 +14,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Step 2: Set up Node.js environment (adjust if you're using other languages or tools)
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '19' 
-          
-      # Step 3: Install dependencies and build the app
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build the application
-        run: npm run build
-
-      # Step 4: Log in to OpenShift using the OpenShift token and server URL
+      # Step 2: Log in to OpenShift using the OpenShift token and server URL
       - name: Log in to OpenShift
         run: |
           oc login --token=${{ secrets.OPENSHIFT_TOKEN }} --server=${{ secrets.OPENSHIFT_SERVER }}
 
-      # Step 5: Set OpenShift Project (replace with your actual project name)
+      # Step 3: Set OpenShift Project (replace with your actual project name)
       - name: Set OpenShift Project
         run: |
           oc project india-dev  # Replace with your OpenShift project name
 
-      # Step 6: Deploy to OpenShift
+      # Step 4: Trigger OpenShift Build (this will use BuildConfig defined above)
+      - name: Start OpenShift Build
+        run: |
+          oc start-build cms-karma-kebab --wait  # Trigger the build and wait for completion
+
+      # Step 5: Deploy to OpenShift (use the generated image from the build)
       - name: Deploy to OpenShift
         run: |
-          oc apply -f cms-karma-kebab.yaml --force # Replace with your OpenShift deployment YAML file
+          oc apply -f cms-karma-kebab.yaml  # Deploy the application to OpenShift with the new image
