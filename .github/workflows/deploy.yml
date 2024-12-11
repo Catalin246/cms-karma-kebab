@@ -40,4 +40,4 @@ jobs:
       # Step 6: Deploy to OpenShift
       - name: Deploy to OpenShift
         run: |
-          oc apply -f cms-karma-kebab.yaml  # Replace with your OpenShift deployment YAML file
+          oc apply -f cms-karma-kebab.yaml --force # Replace with your OpenShift deployment YAML file
