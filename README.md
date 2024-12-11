@@ -12,4 +12,10 @@ Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://
 
 `npm run dev`
 
+## Git Hub Flow
+
+main branch - Ready for production.
+devlop branch - In development.
+feature/feature-name - When working on a feature. (ex. feature/create-login-screen)
+
 
