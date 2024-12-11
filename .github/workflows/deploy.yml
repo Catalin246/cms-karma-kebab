@@ -24,12 +24,17 @@ jobs:
         run: |
           oc project india-dev  # Replace with your OpenShift project name
 
-      # Step 4: Trigger OpenShift Build (this will use BuildConfig defined above)
+      # Step 4: Delete running pods for cms-karma-kebab
+      - name: Delete running cms-karma-kebab pods
+        run: |
+          oc get pods --selector=app=cms-karma-kebab --field-selector=status.phase=Running -o name | xargs -I {} oc delete {} --ignore-not-found=true
+
+      # Step 5: Trigger OpenShift Build
       - name: Start OpenShift Build
         run: |
           oc start-build cms-karma-kebab --wait  # Trigger the build and wait for completion
 
-      # Step 5: Deploy to OpenShift (use the generated image from the build)
+      # Step 6: Deploy to OpenShift
       - name: Deploy to OpenShift
         run: |
           oc apply -f cms-karma-kebab.yaml --force  # Deploy the application to OpenShift with the new image
