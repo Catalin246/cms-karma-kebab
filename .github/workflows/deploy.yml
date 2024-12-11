@@ -34,17 +34,17 @@ jobs:
 
       # Step 5: Set up the OpenShift project (replace with your actual project name)
       - name: Set OpenShift Project
-        run: oc project your-project-name  # Replace with your OpenShift project
+        run: oc project india-dev
 
       # Step 6: Deploy to OpenShift (adjust depending on your app's deployment method)
       - name: Deploy to OpenShift
         run: |
-          oc apply -f k8s/deployment.yml   # Adjust to your deployment YAML location
-
+          oc apply -f cms-karma-kebab.yaml
+          
       # Optional: If you're using OpenShift pipelines, you can trigger a pipeline
       - name: Trigger OpenShift Pipeline
         run: |
-          oc start-build your-build-name   # Trigger OpenShift build pipeline (adjust as needed)
+          oc start-build cms-karma-kebab
 
       # Optional: Push the Docker image to OpenShift image registry (if using Docker builds)
       - name: Push Docker image to OpenShift registry
