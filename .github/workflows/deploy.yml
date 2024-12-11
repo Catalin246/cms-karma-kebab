@@ -37,27 +37,27 @@ jobs:
       # Step 6: Clean up previous pod (delete pod 'cms-karma-kebab-n' when 'cms-karma-kebab-n+1' is created)
       - name: Clean up previous pod
         run: |
-          # Get the list of completed pods with the label 'app=cms-karma-kebab'
-          PODS=$(oc get pods --selector=app=cms-karma-kebab --field-selector=status.phase=Succeeded -o custom-columns=":metadata.name")
+          # Get the list of completed build pods with the label 'app=cms-karma-kebab'
+          PODS=$(oc get pods --selector=app=cms-karma-kebab --field-selector=status.phase=Succeeded -o custom-columns=":metadata.name" | grep 'cms-karma-kebab-.*-build')
 
-          # Check if there are any completed pods
+          # Check if there are any completed build pods
           if [ -z "$PODS" ]; then
-            echo "No completed pods found for cms-karma-kebab."
+            echo "No completed build pods found for cms-karma-kebab."
             exit 0
           fi
 
-          # Get the name of the latest completed pod
-          CURRENT_POD=$(echo "$PODS" | head -n 1)
+          # Get the name of the latest completed build pod
+          CURRENT_POD=$(echo "$PODS" | sort | tail -n 1)
 
-          # Get the previous pod (in this case, find the pod with the lowest version)
-          PREVIOUS_POD=$(echo "$PODS" | grep -v $CURRENT_POD | sort | head -n 1)
+          # Get the previous pod (in this case, find the pod with the second-to-last version)
+          PREVIOUS_POD=$(echo "$PODS" | grep -v $CURRENT_POD | sort | tail -n 1)
 
-          # Delete the previous pod if it exists
+          # Delete the previous build pod if it exists
           if [ -n "$PREVIOUS_POD" ]; then
-            echo "Deleting previous pod: $PREVIOUS_POD"
+            echo "Deleting previous build pod: $PREVIOUS_POD"
             oc delete pod $PREVIOUS_POD
           else
-            echo "No previous pod found, skipping clean-up."
+            echo "No previous build pod found, skipping clean-up."
           fi
 
       # Step 7: Wait for the deployment to complete and ensure the pod is running
