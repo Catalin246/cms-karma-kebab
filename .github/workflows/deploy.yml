@@ -3,7 +3,7 @@ name: CI/CD Pipeline for OpenShift
 on:
   push:
     branches:
-      - main  # Trigger on push to main branch
+      - main  # Trigger on push to the main branch
 
 jobs:
   build-and-deploy:
@@ -32,24 +32,12 @@ jobs:
         run: |
           oc login --token=${{ secrets.OPENSHIFT_TOKEN }} --server=${{ secrets.OPENSHIFT_SERVER }}
 
-      # Step 5: Set up the OpenShift project (replace with your actual project name)
+      # Step 5: Set OpenShift Project (replace with your actual project name)
       - name: Set OpenShift Project
-        run: oc project india-dev
+        run: |
+          oc project india-dev  # Replace with your OpenShift project name
 
-      # Step 6: Deploy to OpenShift (adjust depending on your app's deployment method)
+      # Step 6: Deploy to OpenShift
       - name: Deploy to OpenShift
         run: |
-          oc apply -f cms-karma-kebab.yaml
-          
-      # Optional: If you're using OpenShift pipelines, you can trigger a pipeline
-      - name: Trigger OpenShift Pipeline
-        run: |
-          oc start-build cms-karma-kebab
-
-      # Optional: Push the Docker image to OpenShift image registry (if using Docker builds)
-      - name: Push Docker image to OpenShift registry
-        run: |
-          docker build -t your-image-name .
-          docker login -u $(oc whoami) -p $(oc whoami -t)  # Login using the current user token
-          docker tag your-image-name image-registry.openshift-image-registry.svc:5000/your-project/your-image-name
-          docker push image-registry.openshift-image-registry.svc:5000/your-project/your-image-name
+          oc apply -f cms-karma-kebab.yaml  # Replace with your OpenShift deployment YAML file
