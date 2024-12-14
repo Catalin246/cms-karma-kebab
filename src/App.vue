@@ -3,7 +3,7 @@
     <!-- Navbar -->
     <nav class="bg-blue-600 text-white py-4 px-6 shadow-md">
       <div class="flex justify-between items-center">
-        <h1 class="text-xl font-bold">Event & Employee Management CMS</h1>
+        <h1 class="text-xl font-bold">Karma Kebab - Event & Employee Management CMS</h1>
         <button class="bg-blue-800 px-4 py-2 rounded hover:bg-blue-700">Logout</button>
       </div>
     </nav>
