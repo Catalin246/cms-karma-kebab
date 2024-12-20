@@ -1,4 +1,5 @@
 <template>
+   <router-view v-if="$route.path === '/cms'"></router-view>
   <div class="h-screen w-full bg-gray-100">
     <!-- Navbar -->
     <nav class="h-16 bg-blue-600 text-white px-6 flex items-center justify-between shadow-md">
@@ -69,7 +70,7 @@
               v-model="searchEvent"
               type="text"
               placeholder="Search events"
-              class="p-2 border rounded text-black"
+              class="p-2 border rounded text-white"
             />
           </div>
           <div class="bg-white rounded-lg shadow border overflow-hidden">
@@ -127,7 +128,7 @@
               v-model="searchEmployee"
               type="text"
               placeholder="Search employees"
-              class="p-2 border rounded text-black"
+              class="p-2 border rounded text-white"
             />
           </div>
           <div class="bg-white rounded-lg shadow border overflow-hidden">
@@ -180,7 +181,7 @@
               v-model="searchTruck"
               type="text"
               placeholder="Search trucks"
-              class="p-2 border rounded text-black"
+              class="p-2 border rounded text-white"
             />
           </div>
           <div class="bg-white rounded-lg shadow border overflow-hidden">
@@ -334,6 +335,7 @@
 import axios from 'axios';
 
 export default {
+  name: 'App',
   data() {
     return {
       currentView: 'dashboard',
