@@ -277,15 +277,18 @@
         <table class="w-full">
           <thead>
             <tr>
+              <th class="px-4 py-2 text-left text-black border">Employee</th>
               <th class="px-4 py-2 text-left text-black border">Start Time</th>
               <th class="px-4 py-2 text-left text-black border">End Time</th>
               <th class="px-4 py-2 text-left text-black border">Role</th>
               <th class="px-4 py-2 text-left text-black border">Status</th>
               <th class="px-4 py-2 text-left text-black border">Actions</th>
+
             </tr>
           </thead>
           <tbody>
             <tr v-for="shift in currentEventShifts" :key="shift.id">
+              <td class="px-4 py-2 text-black border">{{ shift.employee }}</td>
               <td class="px-4 py-2 text-black border">{{ shift.startTime }}</td>
               <td class="px-4 py-2 text-black border">{{ shift.endTime }}</td>
               <td class="px-4 py-2 text-black border">{{ shift.role }}</td>
@@ -516,8 +519,8 @@ export default {
         this.currentEvent = event;
         // Sample shifts data for testing
         this.currentEventShifts = [
-          { id: 1, startTime: '09:00', endTime: '17:00', role: 'Staff', status: 'Pending' },
-          { id: 2, startTime: '10:00', endTime: '18:00', role: 'Manager', status: 'Confirmed' }
+          { id: 1, employee: "John Doe", startTime: '09:00', endTime: '17:00', role: 'Staff', status: 'Pending' },
+          { id: 2,  employee: "John Doe", startTime: '10:00', endTime: '18:00', role: 'Manager', status: 'Confirmed' }
         ];
         this.showShiftsModal = true;
       }
@@ -557,3 +560,343 @@ export default {
   }
 };
 </script>
+
+THE FOLLOWING IS THE SCRIPT WITH API IMPLEMENTATION
+<!-- 
+import axios from 'axios';
+
+// Configure axios defaults and interceptors
+const api = axios.create({
+  timeout: 10000, // 10 second timeout
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+// Add response interceptor for error handling
+api.interceptors.response.use(
+  response => response,
+  error => {
+    console.error('API Error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// API endpoint configurations
+const endpoints = {
+  events: {
+    base: process.env.VUE_APP_EVENTS_SERVICE_URL,
+    list: '/api/events',
+    create: '/api/events',
+    update: id => `/api/events/${id}`,
+    delete: id => `/api/events/${id}`,
+    shifts: id => `/api/events/${id}/shifts`
+  },
+  employees: {
+    base: process.env.VUE_APP_EMPLOYEES_SERVICE_URL,
+    list: '/api/employees',
+    create: '/api/employees',
+    update: id => `/api/employees/${id}`,
+    delete: id => `/api/employees/${id}`
+  },
+  trucks: {
+    base: process.env.VUE_APP_TRUCKS_SERVICE_URL,
+    list: '/api/trucks',
+    create: '/api/trucks',
+    update: id => `/api/trucks/${id}`,
+    delete: id => `/api/trucks/${id}`
+  }
+};
+
+export default {
+  data() {
+    return {
+      currentView: 'dashboard',
+      sidebarItems: [
+        { name: 'Dashboard', view: 'dashboard' },
+        { name: 'Manage Events', view: 'events' },
+        { name: 'Manage Employees', view: 'employees' },
+        { name: 'Manage Trucks', view: 'trucks' },
+        { name: 'Calendar', view: 'calendar' }
+      ],
+      events: [],
+      employees: [],
+      trucks: [],
+      currentEvent: null,
+      currentEventShifts: [],
+      showShiftsModal: false,
+      searchEvent: '',
+      searchEmployee: '',
+      searchTruck: '',
+      currentMonth: new Date(),
+      loading: {
+        events: false,
+        employees: false,
+        trucks: false,
+        shifts: false
+      },
+      error: {
+        events: null,
+        employees: null,
+        trucks: null,
+        shifts: null
+      }
+    };
+  },
+  computed: {
+    upcomingEvents() {
+      return this.events
+        .filter(event => new Date(event.date) >= new Date())
+        .sort((a, b) => new Date(a.date) - new Date(b.date))
+        .slice(0, 5);
+    },
+    activeEmployees() {
+      return this.employees
+        .filter(employee => employee.status === 'Active')
+        .slice(0, 5);
+    },
+    filteredEvents() {
+      return this.events.filter(event =>
+        event.name.toLowerCase().includes(this.searchEvent.toLowerCase())
+      );
+    },
+    filteredEmployees() {
+      return this.employees.filter(employee =>
+        employee.name.toLowerCase().includes(this.searchEmployee.toLowerCase())
+      );
+    },
+    filteredTrucks() {
+      return this.trucks.filter(truck =>
+        truck.name.toLowerCase().includes(this.searchTruck.toLowerCase())
+      );
+    },
+    currentMonthYear() {
+      const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                     'July', 'August', 'September', 'October', 'November', 'December'];
+      return `${months[this.currentMonth.getMonth()]} ${this.currentMonth.getFullYear()}`;
+    },
+    calendarDates() {
+      // ... (keep existing calendar computation logic)
+    }
+  },
+  methods: {
+    // API Methods
+    async fetchEvents() {
+      this.loading.events = true;
+      this.error.events = null;
+      try {
+        const response = await api.get(`${endpoints.events.base}${endpoints.events.list}`);
+        this.events = response.data;
+      } catch (error) {
+        this.error.events = 'Failed to fetch events';
+        console.error('Error fetching events:', error);
+      } finally {
+        this.loading.events = false;
+      }
+    },
+
+    async fetchEmployees() {
+      this.loading.employees = true;
+      this.error.employees = null;
+      try {
+        const response = await api.get(`${endpoints.employees.base}${endpoints.employees.list}`);
+        this.employees = response.data;
+      } catch (error) {
+        this.error.employees = 'Failed to fetch employees';
+        console.error('Error fetching employees:', error);
+      } finally {
+        this.loading.employees = false;
+      }
+    },
+
+    async fetchTrucks() {
+      this.loading.trucks = true;
+      this.error.trucks = null;
+      try {
+        const response = await api.get(`${endpoints.trucks.base}${endpoints.trucks.list}`);
+        this.trucks = response.data;
+      } catch (error) {
+        this.error.trucks = 'Failed to fetch trucks';
+        console.error('Error fetching trucks:', error);
+      } finally {
+        this.loading.trucks = false;
+      }
+    },
+
+    async addEvent(eventData) {
+      try {
+        const response = await api.post(`${endpoints.events.base}${endpoints.events.create}`, eventData);
+        this.events.push(response.data);
+        return response.data;
+      } catch (error) {
+        console.error('Error adding event:', error);
+        throw error;
+      }
+    },
+
+    async editEvent(id, eventData) {
+      try {
+        const response = await api.put(
+          `${endpoints.events.base}${endpoints.events.update(id)}`, 
+          eventData
+        );
+        const index = this.events.findIndex(e => e.id === id);
+        if (index !== -1) {
+          this.events[index] = response.data;
+        }
+        return response.data;
+      } catch (error) {
+        console.error('Error updating event:', error);
+        throw error;
+      }
+    },
+
+    async deleteEvent(id) {
+      try {
+        await api.delete(`${endpoints.events.base}${endpoints.events.delete(id)}`);
+        this.events = this.events.filter(event => event.id !== id);
+      } catch (error) {
+        console.error('Error deleting event:', error);
+        throw error;
+      }
+    },
+
+    async addEmployee(employeeData) {
+      try {
+        const response = await api.post(
+          `${endpoints.employees.base}${endpoints.employees.create}`, 
+          employeeData
+        );
+        this.employees.push(response.data);
+        return response.data;
+      } catch (error) {
+        console.error('Error adding employee:', error);
+        throw error;
+      }
+    },
+
+    async editEmployee(id, employeeData) {
+      try {
+        const response = await api.put(
+          `${endpoints.employees.base}${endpoints.employees.update(id)}`, 
+          employeeData
+        );
+        const index = this.employees.findIndex(e => e.id === id);
+        if (index !== -1) {
+          this.employees[index] = response.data;
+        }
+        return response.data;
+      } catch (error) {
+        console.error('Error updating employee:', error);
+        throw error;
+      }
+    },
+
+    async deleteEmployee(id) {
+      try {
+        await api.delete(`${endpoints.employees.base}${endpoints.employees.delete(id)}`);
+        this.employees = this.employees.filter(employee => employee.id !== id);
+      } catch (error) {
+        console.error('Error deleting employee:', error);
+        throw error;
+      }
+    },
+
+    async addTruck(truckData) {
+      try {
+        const response = await api.post(
+          `${endpoints.trucks.base}${endpoints.trucks.create}`, 
+          truckData
+        );
+        this.trucks.push(response.data);
+        return response.data;
+      } catch (error) {
+        console.error('Error adding truck:', error);
+        throw error;
+      }
+    },
+
+    async editTruck(id, truckData) {
+      try {
+        const response = await api.put(
+          `${endpoints.trucks.base}${endpoints.trucks.update(id)}`, 
+          truckData
+        );
+        const index = this.trucks.findIndex(t => t.id === id);
+        if (index !== -1) {
+          this.trucks[index] = response.data;
+        }
+        return response.data;
+      } catch (error) {
+        console.error('Error updating truck:', error);
+        throw error;
+      }
+    },
+
+    async deleteTruck(id) {
+      try {
+        await api.delete(`${endpoints.trucks.base}${endpoints.trucks.delete(id)}`);
+        this.trucks = this.trucks.filter(truck => truck.id !== id);
+      } catch (error) {
+        console.error('Error deleting truck:', error);
+        throw error;
+      }
+    },
+
+    async manageShifts(eventId) {
+      this.loading.shifts = true;
+      this.error.shifts = null;
+      try {
+        const event = this.events.find(e => e.id === eventId);
+        if (event) {
+          this.currentEvent = event;
+          const response = await api.get(
+            `${endpoints.events.base}${endpoints.events.shifts(eventId)}`
+          );
+          this.currentEventShifts = response.data;
+          this.showShiftsModal = true;
+        }
+      } catch (error) {
+        this.error.shifts = 'Failed to fetch shifts';
+        console.error('Error fetching shifts:', error);
+      } finally {
+        this.loading.shifts = false;
+      }
+    },
+
+    // Navigation and UI Methods
+    navigateTo(view) {
+      this.currentView = view;
+    },
+
+    previousMonth() {
+      this.currentMonth = new Date(
+        this.currentMonth.getFullYear(), 
+        this.currentMonth.getMonth() - 1
+      );
+    },
+
+    nextMonth() {
+      this.currentMonth = new Date(
+        this.currentMonth.getFullYear(), 
+        this.currentMonth.getMonth() + 1
+      );
+    },
+
+    closeShiftsModal() {
+      this.showShiftsModal = false;
+      this.currentEvent = null;
+      this.currentEventShifts = [];
+    }
+  },
+  
+  // Lifecycle hooks
+  async created() {
+    // Fetch initial data
+    await Promise.all([
+      this.fetchEvents(),
+      this.fetchEmployees(),
+      this.fetchTrucks()
+    ]);
+  }
+}; -->
