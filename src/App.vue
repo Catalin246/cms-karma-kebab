@@ -1,18 +1,16 @@
 <template>
-  <div class="min-h-screen bg-gray-100">
+  <div class="h-screen w-full bg-gray-100">
     <!-- Navbar -->
-    <nav class="bg-blue-600 text-white py-4 px-6 shadow-md">
-      <div class="flex justify-between items-center">
-        <h1 class="text-xl font-bold"> KK Event & Employee Management CMS</h1>
-        <button class="bg-blue-800 px-4 py-2 rounded hover:bg-blue-700">Logout</button>
-      </div>
+    <nav class="h-16 bg-blue-600 text-white px-6 flex items-center justify-between shadow-md">
+      <h1 class="text-xl font-bold">KK Event & Employee Management CMS</h1>
+      <button class="bg-blue-800 px-4 py-2 rounded hover:bg-blue-700">Logout</button>
     </nav>
 
-    <!-- Main Content -->
-    <div class="flex flex-col md:flex-row">
+    <!-- Content Container -->
+    <div class="h-[calc(100vh-4rem)] w-full flex">
       <!-- Sidebar -->
-      <aside class="bg-gray-800 text-white w-full md:w-1/4 h-full md:h-screen p-4">
-        <ul class="space-y-4">
+      <div class="w-64 bg-gray-800 text-white">
+        <ul class="p-4 space-y-2">
           <li v-for="item in sidebarItems" :key="item.name">
             <button
               class="w-full text-left px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
@@ -22,121 +20,292 @@
             </button>
           </li>
         </ul>
-      </aside>
+      </div>
 
-      <!-- Main Section -->
-      <main class="flex-1 p-6">
-        <div v-if="currentView === 'dashboard'">
-          <h2 class="text-2xl font-bold mb-4 text-black">Dashboard</h2>
-          <p class="text-black">Welcome to the CMS! Use the sidebar to manage events and employees. still need to add stuff to make it specfic for karma kebab project.but this is a base for this</p>
+      <!-- Main Content Area -->
+      <div class="w-[calc(100%-16rem)] h-full bg-white p-6 overflow-auto">
+        <!-- Dashboard View -->
+        <div v-if="currentView === 'dashboard'" class="space-y-6">
+          <h2 class="text-2xl font-bold text-black">Dashboard</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-lg shadow border">
+              <h3 class="text-lg font-semibold text-black mb-4">Upcoming Events</h3>
+              <div class="space-y-2">
+                <div v-for="event in upcomingEvents" :key="event.id" 
+                     class="p-3 bg-gray-50 rounded-md text-black">
+                  {{ event.name }} - {{ event.date }}
+                </div>
+              </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow border">
+              <h3 class="text-lg font-semibold text-black mb-4">Active Employees</h3>
+              <div class="space-y-2">
+                <div v-for="employee in activeEmployees" :key="employee.id" 
+                     class="p-3 bg-gray-50 rounded-md text-black">
+                  {{ employee.name }} - {{ employee.role }}
+                </div>
+              </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow border">
+              <h3 class="text-lg font-semibold text-black mb-4">Truck Status</h3>
+              <div class="space-y-2">
+                <div v-for="truck in trucks" :key="truck.id" 
+                     class="p-3 bg-gray-50 rounded-md text-black">
+                  {{ truck.name }} - {{ truck.status }}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div v-if="currentView === 'events'">
-          <h2 class="text-2xl font-bold mb-4 text-black">Manage Events</h2>
+        <!-- Events View -->
+        <div v-if="currentView === 'events'" class="space-y-6">
+          <h2 class="text-2xl font-bold text-black">Manage Events</h2>
           <div class="flex justify-between mb-4">
-            <button
-              class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-              @click="addEvent"
-            >
+            <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
               Add Event
             </button>
             <input
               v-model="searchEvent"
               type="text"
               placeholder="Search events"
-              class="p-2 border rounded"
+              class="p-2 border rounded text-black"
             />
           </div>
-          <table class="min-w-full bg-white shadow-md rounded">
-            <thead>
-              <tr>
-                <th class="px-4 text-black py-2 border">ID</th>
-                <th class="px-4 text-black py-2 border">Name</th>
-                <th class="px-4 text-black py-2 border">Date</th>
-                <th class="px-4 text-black py-2 border">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="event in filteredEvents" :key="event.id">
-                <td class="px-4 text-black py-2 border">{{ event.id }}</td>
-                <td class="px-4 text-black py-2 border">{{ event.name }}</td>
-                <td class="px-4 text-black py-2 border">{{ event.date }}</td>
-                <td class="px-4 text-black py-2 border">
-                  <button
-                    class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600"
-                    @click="editEvent(event.id)"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                    @click="deleteEvent(event.id)"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="flex justify-between items-center mt-4">
-            <button
-              class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-              @click="previousPage('events')"
-              :disabled="eventPage === 1"
-            >
-              Previous
-            </button>
-            <p>Page {{ eventPage }}</p>
-            <button
-              class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-              @click="nextPage('events')"
-              :disabled="!hasMoreEvents"
-            >
-              Next
-            </button>
+          <div class="bg-white rounded-lg shadow border overflow-hidden">
+            <table class="w-full">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-2 text-left text-black border">ID</th>
+                  <th class="px-4 py-2 text-left text-black border">Name</th>
+                  <th class="px-4 py-2 text-left text-black border">Date</th>
+                  <th class="px-4 py-2 text-left text-black border">Shifts</th>
+                  <th class="px-4 py-2 text-left text-black border">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="event in filteredEvents" :key="event.id" class="border-t">
+                  <td class="px-4 py-2 text-black border">{{ event.id }}</td>
+                  <td class="px-4 py-2 text-black border">{{ event.name }}</td>
+                  <td class="px-4 py-2 text-black border">{{ event.date }}</td>
+                  <td class="px-4 py-2 text-black border">
+                    <button
+                      class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                      @click="manageShifts(event.id)"
+                    >
+                      Manage Shifts
+                    </button>
+                  </td>
+                  <td class="px-4 py-2 text-black border">
+                    <button
+                      class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
+                      @click="editEvent(event.id)"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                      @click="deleteEvent(event.id)"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <div v-if="currentView === 'employees'">
-          <h2 class="text-2xl font-bold mb-4 text-black">Manage Employees</h2>
+        <!-- Employees View -->
+        <div v-if="currentView === 'employees'" class="space-y-6">
+          <h2 class="text-2xl font-bold text-black">Manage Employees</h2>
           <div class="flex justify-between mb-4">
-            <button
-              class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-              @click="addEmployee"
-            >
+            <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
               Add Employee
             </button>
             <input
               v-model="searchEmployee"
               type="text"
               placeholder="Search employees"
-              class="p-2 border rounded"
+              class="p-2 border rounded text-black"
             />
           </div>
-          <table class="min-w-full bg-white shadow-md rounded">
-            <thead>
-              <tr>
-                <th class="px-4 text-black py-2 border">ID</th>
-                <th class="px-4 text-black py-2 border">Name</th>
-                <th class="px-4 text-black py-2 border">Role</th>
-                <th class="px-4 text-black py-2 border">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="employee in filteredEmployees" :key="employee.id">
-                <td class="px-4 text-black py-2 border">{{ employee.id }}</td>
-                <td class="px-4 text-black py-2 border">{{ employee.name }}</td>
-                <td class="px-4 text-black py-2 border">{{ employee.role }}</td>
-                <td class="px-4 text-black py-2 border">
+          <div class="bg-white rounded-lg shadow border overflow-hidden">
+            <table class="w-full">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-2 text-left text-black border">ID</th>
+                  <th class="px-4 py-2 text-left text-black border">Name</th>
+                  <th class="px-4 py-2 text-left text-black border">Role</th>
+                  <th class="px-4 py-2 text-left text-black border">Contact</th>
+                  <th class="px-4 py-2 text-left text-black border">Status</th>
+                  <th class="px-4 py-2 text-left text-black border">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="employee in filteredEmployees" :key="employee.id" class="border-t">
+                  <td class="px-4 py-2 text-black border">{{ employee.id }}</td>
+                  <td class="px-4 py-2 text-black border">{{ employee.name }}</td>
+                  <td class="px-4 py-2 text-black border">{{ employee.role }}</td>
+                  <td class="px-4 py-2 text-black border">{{ employee.contact }}</td>
+                  <td class="px-4 py-2 text-black border">{{ employee.status }}</td>
+                  <td class="px-4 py-2 text-black border">
+                    <button
+                      class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
+                      @click="editEmployee(employee.id)"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                      @click="deleteEmployee(employee.id)"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Trucks View -->
+        <div v-if="currentView === 'trucks'" class="space-y-6">
+          <h2 class="text-2xl font-bold text-black">Manage Trucks</h2>
+          <div class="flex justify-between mb-4">
+            <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+              Add Truck
+            </button>
+            <input
+              v-model="searchTruck"
+              type="text"
+              placeholder="Search trucks"
+              class="p-2 border rounded text-black"
+            />
+          </div>
+          <div class="bg-white rounded-lg shadow border overflow-hidden">
+            <table class="w-full">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-2 text-left text-black border">ID</th>
+                  <th class="px-4 py-2 text-left text-black border">Name</th>
+                  <th class="px-4 py-2 text-left text-black border">Status</th>
+                  <th class="px-4 py-2 text-left text-black border">Last Maintenance</th>
+                  <th class="px-4 py-2 text-left text-black border">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="truck in filteredTrucks" :key="truck.id" class="border-t">
+                  <td class="px-4 py-2 text-black border">{{ truck.id }}</td>
+                  <td class="px-4 py-2 text-black border">{{ truck.name }}</td>
+                  <td class="px-4 py-2 text-black border">{{ truck.status }}</td>
+                  <td class="px-4 py-2 text-black border">{{ truck.lastMaintenance }}</td>
+                  <td class="px-4 py-2 text-black border">
+                    <button
+                      class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
+                      @click="editTruck(truck.id)"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                      @click="deleteTruck(truck.id)"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Calendar View -->
+        <div v-if="currentView === 'calendar'" class="space-y-6">
+          <h2 class="text-2xl font-bold text-black">Schedule Overview</h2>
+          <div class="bg-white rounded-lg shadow border p-6">
+            <div class="flex justify-between items-center mb-6">
+              <button
+                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                @click="previousMonth"
+              >
+                Previous Month
+              </button>
+              <h3 class="text-xl font-bold text-black">{{ currentMonthYear }}</h3>
+              <button
+                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                @click="nextMonth"
+              >
+                Next Month
+              </button>
+            </div>
+            <div class="grid grid-cols-7 gap-2">
+              <div v-for="day in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']" 
+                   :key="day"
+                   class="text-center font-bold p-2 text-black">
+                {{ day }}
+              </div>
+              <div v-for="date in calendarDates" 
+                   :key="date.date"
+                   class="border p-2 min-h-24 relative">
+                <div class="font-bold text-black">{{ date.dayOfMonth }}</div>
+                <div v-for="event in date.events" 
+                     :key="event.id"
+                     class="bg-blue-100 p-1 mb-1 rounded text-sm text-black">
+                  {{ event.name }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shifts Modal -->
+    <div v-if="showShiftsModal" 
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div class="bg-white p-6 rounded-lg w-3/4 max-h-[80vh] overflow-auto">
+        <h3 class="text-xl font-bold mb-4 text-black">
+          Manage Shifts - {{ currentEvent?.name }}
+        </h3>
+        <button
+          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mb-4"
+          @click="addShift"
+        >
+          Add Shift
+        </button>
+        <table class="w-full">
+          <thead>
+            <tr>
+              <th class="px-4 py-2 text-left text-black border">Start Time</th>
+              <th class="px-4 py-2 text-left text-black border">End Time</th>
+              <th class="px-4 py-2 text-left text-black border">Role</th>
+              <th class="px-4 py-2 text-left text-black border">Status</th>
+              <th class="px-4 py-2 text-left text-black border">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="shift in currentEventShifts" :key="shift.id">
+              <td class="px-4 py-2 text-black border">{{ shift.startTime }}</td>
+              <td class="px-4 py-2 text-black border">{{ shift.endTime }}</td>
+              <td class="px-4 py-2 text-black border">{{ shift.role }}</td>
+              <td class="px-4 py-2 text-black border">{{ shift.status }}</td>
+              <td class="px-4 py-2 text-black border">
                   <button
-                    class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600"
-                    @click="editEmployee(employee.id)"
+                    class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 mr-2"
+                    @click="editShift(shift.id)"
                   >
                     Edit
                   </button>
                   <button
+                    class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 mr-2"
+                    @click="confirmShift(shift.id)"
+                  >
+                    Confirm
+                  </button>
+                  <button
                     class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                    @click="deleteEmployee(employee.id)"
+                    @click="deleteShift(shift.id)"
                   >
                     Delete
                   </button>
@@ -144,28 +313,19 @@
               </tr>
             </tbody>
           </table>
-          <div class="flex justify-between items-center mt-4">
+          <div class="mt-6 flex justify-end">
             <button
               class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-              @click="previousPage('employees')"
-              :disabled="employeePage === 1"
+              @click="closeShiftsModal"
             >
-              Previous
-            </button>
-            <p>Page {{ employeePage }}</p>
-            <button
-              class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-              @click="nextPage('employees')"
-              :disabled="!hasMoreEmployees"
-            >
-              Next
+              Close
             </button>
           </div>
         </div>
-      </main>
+      </div>
     </div>
-  </div>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -178,144 +338,222 @@ export default {
         { name: 'Dashboard', view: 'dashboard' },
         { name: 'Manage Events', view: 'events' },
         { name: 'Manage Employees', view: 'employees' },
+        { name: 'Manage Trucks', view: 'trucks' },
+        { name: 'Calendar', view: 'calendar' }
       ],
-      events: [],
-      employees: [],
+      events: [
+        // Sample data for testing
+        { id: 1, name: 'Summer Festival', date: '2024-07-15' },
+        { id: 2, name: 'Food Fair', date: '2024-08-20' }
+      ],
+      employees: [
+        // Sample data for testing
+        { id: 1, name: 'John Doe', role: 'Manager', contact: '123-456-7890', status: 'Active' },
+        { id: 2, name: 'Jane Smith', role: 'Staff', contact: '098-765-4321', status: 'Active' }
+      ],
+      trucks: [
+        // Sample data for testing
+        { id: 1, name: 'Truck A', status: 'Available', lastMaintenance: '2024-06-01' },
+        { id: 2, name: 'Truck B', status: 'In Service', lastMaintenance: '2024-05-15' }
+      ],
+      currentEvent: null,
+      currentEventShifts: [],
+      showShiftsModal: false,
       searchEvent: '',
       searchEmployee: '',
-      eventPage: 1,
-      employeePage: 1,
-      itemsPerPage: 5,
+      searchTruck: '',
+      currentMonth: new Date(),
     };
   },
   computed: {
+    upcomingEvents() {
+      return this.events
+        .filter(event => new Date(event.date) >= new Date())
+        .sort((a, b) => new Date(a.date) - new Date(b.date))
+        .slice(0, 5);
+    },
+    activeEmployees() {
+      return this.employees
+        .filter(employee => employee.status === 'Active')
+        .slice(0, 5);
+    },
     filteredEvents() {
-      return this.paginatedData(
-        this.events.filter((event) =>
-          event.name.toLowerCase().includes(this.searchEvent.toLowerCase())
-        ),
-        this.eventPage
+      return this.events.filter(event =>
+        event.name.toLowerCase().includes(this.searchEvent.toLowerCase())
       );
     },
     filteredEmployees() {
-      return this.paginatedData(
-        this.employees.filter((employee) =>
-          employee.name.toLowerCase().includes(this.searchEmployee.toLowerCase())
-        ),
-        this.employeePage
+      return this.employees.filter(employee =>
+        employee.name.toLowerCase().includes(this.searchEmployee.toLowerCase())
       );
     },
-    hasMoreEvents() {
-      return this.eventPage * this.itemsPerPage < this.events.length;
+    filteredTrucks() {
+      return this.trucks.filter(truck =>
+        truck.name.toLowerCase().includes(this.searchTruck.toLowerCase())
+      );
     },
-    hasMoreEmployees() {
-      return this.employeePage * this.itemsPerPage < this.employees.length;
+    currentMonthYear() {
+      const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                     'July', 'August', 'September', 'October', 'November', 'December'];
+      return `${months[this.currentMonth.getMonth()]} ${this.currentMonth.getFullYear()}`;
     },
+    calendarDates() {
+      const year = this.currentMonth.getFullYear();
+      const month = this.currentMonth.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const daysInMonth = lastDay.getDate();
+      
+      // Get first day of month
+      const firstDayOfWeek = firstDay.getDay();
+      
+      const dates = [];
+      
+      // Previous month's days
+      const prevMonthDays = new Date(year, month, 0).getDate();
+      for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+        dates.push({
+          date: new Date(year, month - 1, prevMonthDays - i),
+          dayOfMonth: prevMonthDays - i,
+          isCurrentMonth: false,
+          events: []
+        });
+      }
+      
+      // Current month's days
+      for (let day = 1; day <= daysInMonth; day++) {
+        const currentDate = new Date(year, month, day);
+        const dateStr = currentDate.toISOString().split('T')[0];
+        dates.push({
+          date: currentDate,
+          dayOfMonth: day,
+          isCurrentMonth: true,
+          events: this.events.filter(event => event.date === dateStr)
+        });
+      }
+      
+      // Next month's days
+      const remainingDays = 42 - dates.length;
+      for (let day = 1; day <= remainingDays; day++) {
+        dates.push({
+          date: new Date(year, month + 1, day),
+          dayOfMonth: day,
+          isCurrentMonth: false,
+          events: []
+        });
+      }
+      
+      return dates;
+    }
   },
   methods: {
     navigateTo(view) {
       this.currentView = view;
-      if (view === 'events') this.fetchEvents();
-      if (view === 'employees') this.fetchEmployees();
     },
-    async fetchEvents() {
-      try {
-        const response = await axios.get('/api/events');
-        this.events = response.data;
-      } catch (error) {
-        console.error('Error fetching events:', error);
+    previousMonth() {
+      this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() - 1);
+    },
+    nextMonth() {
+      this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + 1);
+    },
+    addEvent() {
+      const newEvent = {
+        id: this.events.length + 1,
+        name: 'New Event',
+        date: new Date().toISOString().split('T')[0]
+      };
+      this.events.push(newEvent);
+    },
+    editEvent(id) {
+      const event = this.events.find(e => e.id === id);
+      if (event) {
+        event.name = 'Updated Event Name';
       }
     },
-    async fetchEmployees() {
-      try {
-        const response = await axios.get('/api/employees');
-        this.employees = response.data;
-      } catch (error) {
-        console.error('Error fetching employees:', error);
+    deleteEvent(id) {
+      this.events = this.events.filter(event => event.id !== id);
+    },
+    addEmployee() {
+      const newEmployee = {
+        id: this.employees.length + 1,
+        name: 'New Employee',
+        role: 'Staff',
+        contact: '',
+        status: 'Active'
+      };
+      this.employees.push(newEmployee);
+    },
+    editEmployee(id) {
+      const employee = this.employees.find(e => e.id === id);
+      if (employee) {
+        employee.name = 'Updated Employee Name';
       }
     },
-    async addEvent() {
-      const newEvent = { name: 'New Event', date: '2024-12-31' };
-      try {
-        const response = await axios.post('/api/events', newEvent);
-        this.events.push(response.data);
-      } catch (error) {
-        console.error('Error adding event:', error);
+    deleteEmployee(id) {
+      this.employees = this.employees.filter(employee => employee.id !== id);
+    },
+    addTruck() {
+      const newTruck = {
+        id: this.trucks.length + 1,
+        name: 'New Truck',
+        status: 'Available',
+        lastMaintenance: new Date().toISOString().split('T')[0]
+      };
+      this.trucks.push(newTruck);
+    },
+    editTruck(id) {
+      const truck = this.trucks.find(t => t.id === id);
+      if (truck) {
+        truck.name = 'Updated Truck Name';
       }
     },
-    async editEvent(id) {
-      const updatedEvent = { name: 'Updated Event Name', date: '2025-01-01' };
-      try {
-        const response = await axios.put(`/api/events/${id}`, updatedEvent);
-        const index = this.events.findIndex((event) => event.id === id);
-        if (index !== -1) {
-          this.events.splice(index, 1, response.data);
-        }
-      } catch (error) {
-        console.error('Error editing event:', error);
+    deleteTruck(id) {
+      this.trucks = this.trucks.filter(truck => truck.id !== id);
+    },
+    manageShifts(eventId) {
+      const event = this.events.find(e => e.id === eventId);
+      if (event) {
+        this.currentEvent = event;
+        // Sample shifts data for testing
+        this.currentEventShifts = [
+          { id: 1, startTime: '09:00', endTime: '17:00', role: 'Staff', status: 'Pending' },
+          { id: 2, startTime: '10:00', endTime: '18:00', role: 'Manager', status: 'Confirmed' }
+        ];
+        this.showShiftsModal = true;
       }
     },
-    async deleteEvent(id) {
-      try {
-        await axios.delete(`/api/events/${id}`);
-        this.events = this.events.filter((event) => event.id !== id);
-      } catch (error) {
-        console.error('Error deleting event:', error);
+    closeShiftsModal() {
+      this.showShiftsModal = false;
+      this.currentEvent = null;
+      this.currentEventShifts = [];
+    },
+    addShift() {
+      if (!this.currentEvent) return;
+      const newShift = {
+        id: this.currentEventShifts.length + 1,
+        startTime: '09:00',
+        endTime: '17:00',
+        role: 'Staff',
+        status: 'Pending'
+      };
+      this.currentEventShifts.push(newShift);
+    },
+    editShift(id) {
+      const shift = this.currentEventShifts.find(s => s.id === id);
+      if (shift) {
+        shift.startTime = '10:00';
+        shift.endTime = '18:00';
       }
     },
-    async addEmployee() {
-      const newEmployee = { name: 'New Employee', role: 'Staff' };
-      try {
-        const response = await axios.post('/api/employees', newEmployee);
-        this.employees.push(response.data);
-      } catch (error) {
-        console.error('Error adding employee:', error);
+    confirmShift(id) {
+      const shift = this.currentEventShifts.find(s => s.id === id);
+      if (shift) {
+        shift.status = 'Confirmed';
       }
     },
-    async editEmployee(id) {
-      const updatedEmployee = { name: 'Updated Employee Name', role: 'Manager' };
-      try {
-        const response = await axios.put(`/api/employees/${id}`, updatedEmployee);
-        const index = this.employees.findIndex((employee) => employee.id === id);
-        if (index !== -1) {
-          this.employees.splice(index, 1, response.data);
-        }
-      } catch (error) {
-        console.error('Error editing employee:', error);
-      }
-    },
-    async deleteEmployee(id) {
-      try {
-        await axios.delete(`/api/employees/${id}`);
-        this.employees = this.employees.filter((employee) => employee.id !== id);
-      } catch (error) {
-        console.error('Error deleting employee:', error);
-      }
-    },
-    paginatedData(data, page) {
-      const start = (page - 1) * this.itemsPerPage;
-      return data.slice(start, start + this.itemsPerPage);
-    },
-    nextPage(type) {
-      if (type === 'events' && this.hasMoreEvents) {
-        this.eventPage++;
-      } else if (type === 'employees' && this.hasMoreEmployees) {
-        this.employeePage++;
-      }
-    },
-    previousPage(type) {
-      if (type === 'events' && this.eventPage > 1) {
-        this.eventPage--;
-      } else if (type === 'employees' && this.employeePage > 1) {
-        this.employeePage--;
-      }
-    },
-  },
-  created() {
-    this.fetchEvents();
-    this.fetchEmployees();
-  },
+    deleteShift(id) {
+      this.currentEventShifts = this.currentEventShifts.filter(shift => shift.id !== id);
+    }
+  }
 };
 </script>
-
-
