@@ -118,7 +118,7 @@ export default {
                 const response = await axios.get("http://localhost:3007/duties");
                 // Set the tasks data with the response
                 this.tasks = response.data.map(task => ({
-                    id: task.RowKey, // Assuming RowKey is the unique ID of the task
+                    id: task.RowKey, // RowKey is the ID of the task
                     name: task.DutyName,
                     description: task.DutyDescription,
                     roleId: task.RoleId,
