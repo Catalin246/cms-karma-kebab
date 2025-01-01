@@ -193,7 +193,7 @@
 
           <!-- Tasks View -->
   <div v-if="showTasksModal" class="space-y-6">
-    <div class="bg-white p-6 rounded-lg overflow-auto shadow-lg relative">
+    <div class="">
       <ManageTasks />
     </div>
   </div>
