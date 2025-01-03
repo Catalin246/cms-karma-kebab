@@ -331,7 +331,7 @@
 </template>
 
 
-<script>
+<!-- <script>
 import axios from 'axios';
 
 export default {
@@ -561,18 +561,20 @@ export default {
     }
   }
 };
-</script>
+</script> -->
 
-THE FOLLOWING IS THE SCRIPT WITH API IMPLEMENTATION
-<!-- 
+
+<!-- THE FOLLOWING IS THE SCRIPT WITH API IMPLEMENTATION -->
+<script>
 import axios from 'axios';
 
 // Configure axios defaults and interceptors
 const api = axios.create({
-  timeout: 10000, // 10 second timeout
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
-  }
+  },
+  withCredentials: true // Enable cookies if needed
 });
 
 // Add response interceptor for error handling
@@ -587,7 +589,7 @@ api.interceptors.response.use(
 // API endpoint configurations
 const endpoints = {
   events: {
-    base: process.env.VUE_APP_EVENTS_SERVICE_URL,
+    base: process.env.VUE_APP_EVENTS_SERVICE_URL || 'http://localhost:3000',
     list: '/api/events',
     create: '/api/events',
     update: id => `/api/events/${id}`,
@@ -595,14 +597,14 @@ const endpoints = {
     shifts: id => `/api/events/${id}/shifts`
   },
   employees: {
-    base: process.env.VUE_APP_EMPLOYEES_SERVICE_URL,
+    base: process.env.VUE_APP_EMPLOYEES_SERVICE_URL || 'http://localhost:3000',
     list: '/api/employees',
     create: '/api/employees',
     update: id => `/api/employees/${id}`,
     delete: id => `/api/employees/${id}`
   },
   trucks: {
-    base: process.env.VUE_APP_TRUCKS_SERVICE_URL,
+    base: process.env.VUE_APP_TRUCKS_SERVICE_URL || 'http://localhost:3000',
     list: '/api/trucks',
     create: '/api/trucks',
     update: id => `/api/trucks/${id}`,
@@ -611,15 +613,17 @@ const endpoints = {
 };
 
 export default {
+  name: 'App',
+  
   data() {
     return {
       currentView: 'dashboard',
       sidebarItems: [
-        { name: 'Dashboard', view: 'dashboard' },
-        { name: 'Manage Events', view: 'events' },
-        { name: 'Manage Employees', view: 'employees' },
-        { name: 'Manage Trucks', view: 'trucks' },
-        { name: 'Calendar', view: 'calendar' }
+        { name: 'Dashboard', view: 'dashboard', icon: 'home' },
+        { name: 'Manage Events', view: 'events', icon: 'calendar' },
+        { name: 'Manage Employees', view: 'employees', icon: 'users' },
+        { name: 'Manage Trucks', view: 'trucks', icon: 'truck' },
+        { name: 'Calendar', view: 'calendar', icon: 'calendar-days' }
       ],
       events: [],
       employees: [],
@@ -642,9 +646,31 @@ export default {
         employees: null,
         trucks: null,
         shifts: null
+      },
+      notifications: [],
+      formData: {
+        event: {
+          name: '',
+          date: '',
+          location: '',
+          description: ''
+        },
+        employee: {
+          name: '',
+          email: '',
+          phone: '',
+          status: 'Active'
+        },
+        truck: {
+          name: '',
+          model: '',
+          capacity: '',
+          status: 'Available'
+        }
       }
     };
   },
+
   computed: {
     upcomingEvents() {
       return this.events
@@ -652,51 +678,113 @@ export default {
         .sort((a, b) => new Date(a.date) - new Date(b.date))
         .slice(0, 5);
     },
+
     activeEmployees() {
       return this.employees
         .filter(employee => employee.status === 'Active')
         .slice(0, 5);
     },
+
+    availableTrucks() {
+      return this.trucks
+        .filter(truck => truck.status === 'Available')
+        .slice(0, 5);
+    },
+
     filteredEvents() {
       return this.events.filter(event =>
-        event.name.toLowerCase().includes(this.searchEvent.toLowerCase())
+        event.name.toLowerCase().includes(this.searchEvent.toLowerCase()) ||
+        event.location.toLowerCase().includes(this.searchEvent.toLowerCase())
       );
     },
+
     filteredEmployees() {
       return this.employees.filter(employee =>
-        employee.name.toLowerCase().includes(this.searchEmployee.toLowerCase())
+        employee.name.toLowerCase().includes(this.searchEmployee.toLowerCase()) ||
+        employee.email.toLowerCase().includes(this.searchEmployee.toLowerCase())
       );
     },
+
     filteredTrucks() {
       return this.trucks.filter(truck =>
-        truck.name.toLowerCase().includes(this.searchTruck.toLowerCase())
+        truck.name.toLowerCase().includes(this.searchTruck.toLowerCase()) ||
+        truck.model.toLowerCase().includes(this.searchTruck.toLowerCase())
       );
     },
+
     currentMonthYear() {
       const months = ['January', 'February', 'March', 'April', 'May', 'June', 
                      'July', 'August', 'September', 'October', 'November', 'December'];
       return `${months[this.currentMonth.getMonth()]} ${this.currentMonth.getFullYear()}`;
-    },
-    calendarDates() {
-      // ... (keep existing calendar computation logic)
     }
   },
+
   methods: {
-    // API Methods
+    // API Methods - Events
     async fetchEvents() {
       this.loading.events = true;
       this.error.events = null;
       try {
         const response = await api.get(`${endpoints.events.base}${endpoints.events.list}`);
         this.events = response.data;
+        this.addNotification('Events loaded successfully', 'success');
       } catch (error) {
         this.error.events = 'Failed to fetch events';
+        this.addNotification('Failed to load events', 'error');
         console.error('Error fetching events:', error);
       } finally {
         this.loading.events = false;
       }
     },
 
+    async addEvent(eventData) {
+      try {
+        const response = await api.post(
+          `${endpoints.events.base}${endpoints.events.create}`,
+          eventData
+        );
+        this.events.push(response.data);
+        this.addNotification('Event added successfully', 'success');
+        return response.data;
+      } catch (error) {
+        this.addNotification('Failed to add event', 'error');
+        console.error('Error adding event:', error);
+        throw error;
+      }
+    },
+
+    async editEvent(id, eventData) {
+      try {
+        const response = await api.put(
+          `${endpoints.events.base}${endpoints.events.update(id)}`,
+          eventData
+        );
+        const index = this.events.findIndex(e => e.id === id);
+        if (index !== -1) {
+          this.events[index] = response.data;
+        }
+        this.addNotification('Event updated successfully', 'success');
+        return response.data;
+      } catch (error) {
+        this.addNotification('Failed to update event', 'error');
+        console.error('Error updating event:', error);
+        throw error;
+      }
+    },
+
+    async deleteEvent(id) {
+      try {
+        await api.delete(`${endpoints.events.base}${endpoints.events.delete(id)}`);
+        this.events = this.events.filter(event => event.id !== id);
+        this.addNotification('Event deleted successfully', 'success');
+      } catch (error) {
+        this.addNotification('Failed to delete event', 'error');
+        console.error('Error deleting event:', error);
+        throw error;
+      }
+    },
+
+    // API Methods - Employees
     async fetchEmployees() {
       this.loading.employees = true;
       this.error.employees = null;
@@ -711,6 +799,54 @@ export default {
       }
     },
 
+    async addEmployee(employeeData) {
+      try {
+        const response = await api.post(
+          `${endpoints.employees.base}${endpoints.employees.create}`,
+          employeeData
+        );
+        this.employees.push(response.data);
+        this.addNotification('Employee added successfully', 'success');
+        return response.data;
+      } catch (error) {
+        this.addNotification('Failed to add employee', 'error');
+        console.error('Error adding employee:', error);
+        throw error;
+      }
+    },
+
+    async editEmployee(id, employeeData) {
+      try {
+        const response = await api.put(
+          `${endpoints.employees.base}${endpoints.employees.update(id)}`,
+          employeeData
+        );
+        const index = this.employees.findIndex(e => e.id === id);
+        if (index !== -1) {
+          this.employees[index] = response.data;
+        }
+        this.addNotification('Employee updated successfully', 'success');
+        return response.data;
+      } catch (error) {
+        this.addNotification('Failed to update employee', 'error');
+        console.error('Error updating employee:', error);
+        throw error;
+      }
+    },
+
+    async deleteEmployee(id) {
+      try {
+        await api.delete(`${endpoints.employees.base}${endpoints.employees.delete(id)}`);
+        this.employees = this.employees.filter(employee => employee.id !== id);
+        this.addNotification('Employee deleted successfully', 'success');
+      } catch (error) {
+        this.addNotification('Failed to delete employee', 'error');
+        console.error('Error deleting employee:', error);
+        throw error;
+      }
+    },
+
+    // API Methods - Trucks
     async fetchTrucks() {
       this.loading.trucks = true;
       this.error.trucks = null;
@@ -725,94 +861,17 @@ export default {
       }
     },
 
-    async addEvent(eventData) {
-      try {
-        const response = await api.post(`${endpoints.events.base}${endpoints.events.create}`, eventData);
-        this.events.push(response.data);
-        return response.data;
-      } catch (error) {
-        console.error('Error adding event:', error);
-        throw error;
-      }
-    },
-
-    async editEvent(id, eventData) {
-      try {
-        const response = await api.put(
-          `${endpoints.events.base}${endpoints.events.update(id)}`, 
-          eventData
-        );
-        const index = this.events.findIndex(e => e.id === id);
-        if (index !== -1) {
-          this.events[index] = response.data;
-        }
-        return response.data;
-      } catch (error) {
-        console.error('Error updating event:', error);
-        throw error;
-      }
-    },
-
-    async deleteEvent(id) {
-      try {
-        await api.delete(`${endpoints.events.base}${endpoints.events.delete(id)}`);
-        this.events = this.events.filter(event => event.id !== id);
-      } catch (error) {
-        console.error('Error deleting event:', error);
-        throw error;
-      }
-    },
-
-    async addEmployee(employeeData) {
-      try {
-        const response = await api.post(
-          `${endpoints.employees.base}${endpoints.employees.create}`, 
-          employeeData
-        );
-        this.employees.push(response.data);
-        return response.data;
-      } catch (error) {
-        console.error('Error adding employee:', error);
-        throw error;
-      }
-    },
-
-    async editEmployee(id, employeeData) {
-      try {
-        const response = await api.put(
-          `${endpoints.employees.base}${endpoints.employees.update(id)}`, 
-          employeeData
-        );
-        const index = this.employees.findIndex(e => e.id === id);
-        if (index !== -1) {
-          this.employees[index] = response.data;
-        }
-        return response.data;
-      } catch (error) {
-        console.error('Error updating employee:', error);
-        throw error;
-      }
-    },
-
-    async deleteEmployee(id) {
-      try {
-        await api.delete(`${endpoints.employees.base}${endpoints.employees.delete(id)}`);
-        this.employees = this.employees.filter(employee => employee.id !== id);
-      } catch (error) {
-        console.error('Error deleting employee:', error);
-        throw error;
-      }
-    },
-
     async addTruck(truckData) {
       try {
         const response = await api.post(
-          `${endpoints.trucks.base}${endpoints.trucks.create}`, 
+          `${endpoints.trucks.base}${endpoints.trucks.create}`,
           truckData
         );
         this.trucks.push(response.data);
+        this.addNotification('Truck added successfully', 'success');
         return response.data;
       } catch (error) {
+        this.addNotification('Failed to add truck', 'error');
         console.error('Error adding truck:', error);
         throw error;
       }
@@ -821,15 +880,17 @@ export default {
     async editTruck(id, truckData) {
       try {
         const response = await api.put(
-          `${endpoints.trucks.base}${endpoints.trucks.update(id)}`, 
+          `${endpoints.trucks.base}${endpoints.trucks.update(id)}`,
           truckData
         );
         const index = this.trucks.findIndex(t => t.id === id);
         if (index !== -1) {
           this.trucks[index] = response.data;
         }
+        this.addNotification('Truck updated successfully', 'success');
         return response.data;
       } catch (error) {
+        this.addNotification('Failed to update truck', 'error');
         console.error('Error updating truck:', error);
         throw error;
       }
@@ -839,12 +900,15 @@ export default {
       try {
         await api.delete(`${endpoints.trucks.base}${endpoints.trucks.delete(id)}`);
         this.trucks = this.trucks.filter(truck => truck.id !== id);
+        this.addNotification('Truck deleted successfully', 'success');
       } catch (error) {
+        this.addNotification('Failed to delete truck', 'error');
         console.error('Error deleting truck:', error);
         throw error;
       }
     },
 
+    // Shifts Management
     async manageShifts(eventId) {
       this.loading.shifts = true;
       this.error.shifts = null;
@@ -860,27 +924,65 @@ export default {
         }
       } catch (error) {
         this.error.shifts = 'Failed to fetch shifts';
+        this.addNotification('Failed to load shifts', 'error');
         console.error('Error fetching shifts:', error);
       } finally {
         this.loading.shifts = false;
       }
     },
 
-    // Navigation and UI Methods
+    // UI Methods
     navigateTo(view) {
       this.currentView = view;
+      this.resetFormData();
+    },
+
+    resetFormData() {
+      this.formData = {
+        event: {
+          name: '',
+          date: '',
+          location: '',
+          description: ''
+        },
+        employee: {
+          name: '',
+          email: '',
+          phone: '',
+          status: 'Active'
+        },
+        truck: {
+          name: '',
+          model: '',
+          capacity: '',
+          status: 'Available'
+        }
+      };
+    },
+
+    addNotification(message, type = 'info') {
+      const notification = {
+        id: Date.now(),
+        message,
+        type,
+        timestamp: new Date()
+      };
+      this.notifications.push(notification);
+      setTimeout(() => {
+        this.notifications = this.notifications.filter(n => n.id !== notification.id);
+      }, 5000);
     },
 
     previousMonth() {
       this.currentMonth = new Date(
-        this.currentMonth.getFullYear(), 
+        this.currentMonth.getFullYear(),
         this.currentMonth.getMonth() - 1
       );
     },
 
     nextMonth() {
       this.currentMonth = new Date(
-        this.currentMonth.getFullYear(), 
+        this.currentMonth.getFullYear(),
         this.currentMonth.getMonth() + 1
       );
     },
@@ -891,14 +993,20 @@ export default {
       this.currentEventShifts = [];
     }
   },
-  
+
   // Lifecycle hooks
   async created() {
-    // Fetch initial data
-    await Promise.all([
-      this.fetchEvents(),
-      this.fetchEmployees(),
-      this.fetchTrucks()
-    ]);
+    try {
+      await Promise.all([
+        this.fetchEvents(),
+        this.fetchEmployees(),
+        this.fetchTrucks()
+      ]);
+      this.addNotification('Application initialized successfully', 'success');
+    } catch (error) {
+      this.addNotification('Error initializing application', 'error');
+      console.error('Initialization error:', error);
+    }
   }
-}; -->
+};
+</script>
