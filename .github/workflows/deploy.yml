@@ -14,32 +14,41 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Step 2: Log in to OpenShift using the OpenShift token and server URL
+      # Step 2: Install OpenShift CLI
+      - name: Install OpenShift CLI
+        run: |
+          curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz
+          tar -xvf openshift-client-linux.tar.gz
+          sudo mv oc /usr/local/bin/
+          sudo chmod +x /usr/local/bin/oc
+          oc version
+
+      # Step 3: Log in to OpenShift using the OpenShift token and server URL
       - name: Log in to OpenShift
         run: |
           oc login --token=${{ secrets.OPENSHIFT_TOKEN }} --server=${{ secrets.OPENSHIFT_SERVER }}
 
-      # Step 3: Set OpenShift Project (replace with your actual project name)
+      # Step 4: Set OpenShift Project (replace with your actual project name)
       - name: Set OpenShift Project
         run: |
           oc project india-dev  # Replace with your OpenShift project name
 
-      # Step 4: Trigger OpenShift Build
+      # Step 5: Trigger OpenShift Build
       - name: Start OpenShift Build
         run: |
           oc start-build cms-karma-kebab --wait  # Trigger the build and wait for completion
 
-      # Step 5: Restart the application by deleting the old running pod 
+      # Step 6: Restart the application by deleting the old running pod 
       - name: Restart the application by deleting the old running pod
         run: |
           oc get pods --selector=app=cms-karma-kebab --field-selector=status.phase=Running -o name | xargs -I {} oc delete {} --ignore-not-found=true
 
-      # Step 6: Wait for the deployment to complete and ensure the pod is running
+      # Step 7: Wait for the deployment to complete and ensure the pod is running
       - name: Wait for Pod to be Running
         run: |
           kubectl rollout status deployment/cms-karma-kebab --timeout=60s
 
-      # Step 7: Run npm build inside the deployed pod
+      # Step 8: Run npm build inside the deployed pod
       - name: Run npm run build inside the pod
         run: |
           # Get the name of the running cms-karma-kebab pod
