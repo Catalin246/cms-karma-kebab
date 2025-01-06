@@ -1,5 +1,5 @@
 <template>
-   <router-view v-if="$route.path === '/cms'"></router-view>
+  <router-view v-if="$route.path === '/cms'"></router-view>
   <div class="h-screen w-full bg-gray-100">
     <!-- Navbar -->
     <nav class="h-16 bg-blue-600 text-white px-6 flex items-center justify-between shadow-md">
@@ -13,10 +13,8 @@
       <div class="w-64 bg-gray-800 text-white">
         <ul class="p-4 space-y-2">
           <li v-for="item in sidebarItems" :key="item.name">
-            <button
-              class="w-full text-left px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
-              @click="navigateTo(item.view)"
-            >
+            <button class="w-full text-left px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
+              @click="navigateTo(item.view)">
               {{ item.name }}
             </button>
           </li>
@@ -32,8 +30,7 @@
             <div class="bg-white p-6 rounded-lg shadow border">
               <h3 class="text-lg font-semibold text-black mb-4">Upcoming Events</h3>
               <div class="space-y-2">
-                <div v-for="event in upcomingEvents" :key="event.id" 
-                     class="p-3 bg-gray-50 rounded-md text-black">
+                <div v-for="event in upcomingEvents" :key="event.id" class="p-3 bg-gray-50 rounded-md text-black">
                   {{ event.name }} - {{ event.date }}
                 </div>
               </div>
@@ -41,8 +38,8 @@
             <div class="bg-white p-6 rounded-lg shadow border">
               <h3 class="text-lg font-semibold text-black mb-4">Active Employees</h3>
               <div class="space-y-2">
-                <div v-for="employee in activeEmployees" :key="employee.id" 
-                     class="p-3 bg-gray-50 rounded-md text-black">
+                <div v-for="employee in activeEmployees" :key="employee.id"
+                  class="p-3 bg-gray-50 rounded-md text-black">
                   {{ employee.name }} - {{ employee.role }}
                 </div>
               </div>
@@ -50,8 +47,7 @@
             <div class="bg-white p-6 rounded-lg shadow border">
               <h3 class="text-lg font-semibold text-black mb-4">Truck Status</h3>
               <div class="space-y-2">
-                <div v-for="truck in trucks" :key="truck.id" 
-                     class="p-3 bg-gray-50 rounded-md text-black">
+                <div v-for="truck in trucks" :key="truck.id" class="p-3 bg-gray-50 rounded-md text-black">
                   {{ truck.name }} - {{ truck.status }}
                 </div>
               </div>
@@ -66,12 +62,8 @@
             <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
               Add Event
             </button>
-            <input
-              v-model="searchEvent"
-              type="text"
-              placeholder="Search events"
-              class="p-2 border rounded text-white"
-            />
+            <input v-model="searchEvent" type="text" placeholder="Search events"
+              class="p-2 border rounded text-white" />
           </div>
           <div class="bg-white rounded-lg shadow border overflow-hidden">
             <table class="w-full">
@@ -90,24 +82,18 @@
                   <td class="px-4 py-2 text-black border">{{ event.name }}</td>
                   <td class="px-4 py-2 text-black border">{{ event.date }}</td>
                   <td class="px-4 py-2 text-black border">
-                    <button
-                      class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                      @click="manageShifts(event.id)"
-                    >
+                    <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                      @click="manageShifts(event.id)">
                       Manage Shifts
                     </button>
                   </td>
                   <td class="px-4 py-2 text-black border">
-                    <button
-                      class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
-                      @click="editEvent(event.id)"
-                    >
+                    <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
+                      @click="editEvent(event.id)">
                       Edit
                     </button>
-                    <button
-                      class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                      @click="deleteEvent(event.id)"
-                    >
+                    <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                      @click="deleteEvent(event.id)">
                       Delete
                     </button>
                   </td>
@@ -124,12 +110,8 @@
             <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
               Add Employee
             </button>
-            <input
-              v-model="searchEmployee"
-              type="text"
-              placeholder="Search employees"
-              class="p-2 border rounded text-white"
-            />
+            <input v-model="searchEmployee" type="text" placeholder="Search employees"
+              class="p-2 border rounded text-white" />
           </div>
           <div class="bg-white rounded-lg shadow border overflow-hidden">
             <table class="w-full">
@@ -151,16 +133,12 @@
                   <td class="px-4 py-2 text-black border">{{ employee.contact }}</td>
                   <td class="px-4 py-2 text-black border">{{ employee.status }}</td>
                   <td class="px-4 py-2 text-black border">
-                    <button
-                      class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
-                      @click="editEmployee(employee.id)"
-                    >
+                    <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
+                      @click="editEmployee(employee.id)">
                       Edit
                     </button>
-                    <button
-                      class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                      @click="deleteEmployee(employee.id)"
-                    >
+                    <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                      @click="deleteEmployee(employee.id)">
                       Delete
                     </button>
                   </td>
@@ -177,12 +155,8 @@
             <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
               Add Truck
             </button>
-            <input
-              v-model="searchTruck"
-              type="text"
-              placeholder="Search trucks"
-              class="p-2 border rounded text-white"
-            />
+            <input v-model="searchTruck" type="text" placeholder="Search trucks"
+              class="p-2 border rounded text-white" />
           </div>
           <div class="bg-white rounded-lg shadow border overflow-hidden">
             <table class="w-full">
@@ -202,16 +176,12 @@
                   <td class="px-4 py-2 text-black border">{{ truck.status }}</td>
                   <td class="px-4 py-2 text-black border">{{ truck.lastMaintenance }}</td>
                   <td class="px-4 py-2 text-black border">
-                    <button
-                      class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
-                      @click="editTruck(truck.id)"
-                    >
+                    <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
+                      @click="editTruck(truck.id)">
                       Edit
                     </button>
-                    <button
-                      class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                      @click="deleteTruck(truck.id)"
-                    >
+                    <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                      @click="deleteTruck(truck.id)">
                       Delete
                     </button>
                   </td>
@@ -221,38 +191,35 @@
           </div>
         </div>
 
+        <!-- Tasks View -->
+        <div v-if="currentView === 'tasks'" class="space-y-6">
+          <div class="">
+            <ManageTasks />
+          </div>
+        </div>
+
         <!-- Calendar View -->
         <div v-if="currentView === 'calendar'" class="space-y-6">
           <h2 class="text-2xl font-bold text-black">Schedule Overview</h2>
           <div class="bg-white rounded-lg shadow border p-6">
             <div class="flex justify-between items-center mb-6">
-              <button
-                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                @click="previousMonth"
-              >
+              <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" @click="previousMonth">
                 Previous Month
               </button>
               <h3 class="text-xl font-bold text-black">{{ currentMonthYear }}</h3>
-              <button
-                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                @click="nextMonth"
-              >
+              <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" @click="nextMonth">
                 Next Month
               </button>
             </div>
             <div class="grid grid-cols-7 gap-2">
-              <div v-for="day in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']" 
-                   :key="day"
-                   class="text-center font-bold p-2 text-black">
+              <div v-for="day in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']" :key="day"
+                class="text-center font-bold p-2 text-black">
                 {{ day }}
               </div>
-              <div v-for="date in calendarDates" 
-                   :key="date.date"
-                   class="border p-2 min-h-24 relative">
+              <div v-for="date in calendarDates" :key="date.date" class="border p-2 min-h-24 relative">
                 <div class="font-bold text-black">{{ date.dayOfMonth }}</div>
-                <div v-for="event in date.events" 
-                     :key="event.id"
-                     class="bg-blue-100 p-1 mb-1 rounded text-sm text-black">
+                <div v-for="event in date.events" :key="event.id"
+                  class="bg-blue-100 p-1 mb-1 rounded text-sm text-black">
                   {{ event.name }}
                 </div>
               </div>
@@ -262,59 +229,15 @@
       </div>
     </div>
 
-
-    <!-- Add Shift Form Modal -->
-    <div v-if="showAddShiftForm" 
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div class="bg-white p-6 rounded-lg w-1/3">
-        <h3 class="text-xl font-bold mb-4 text-black">Add New Shift</h3>
-        <form @submit.prevent="submitShift">
-          <div class="mb-4">
-            <label for="employee" class="block text-black mb-2">Employee</label>
-            <select id="employee" v-model="newShift.employeeId" class="w-full p-2 border rounded">
-              <option v-for="employee in employees" :key="employee.id" :value="employee.id">
-                {{ employee.name }}
-              </option>
-            </select>
-          </div>
-          <div class="mb-4">
-            <label for="startTime" class="block text-black mb-2">Start Time</label>
-            <input type="datetime-local" id="startTime" v-model="newShift.startTime" class="w-full p-2 border rounded">
-          </div>
-          <div class="mb-4">
-            <label for="endTime" class="block text-black mb-2">End Time</label>
-            <input type="datetime-local" id="endTime" v-model="newShift.endTime" class="w-full p-2 border rounded">
-          </div>
-          <div class="mb-4">
-            <label for="role" class="block text-black mb-2">Role</label>
-            <select id="role" v-model="newShift.roleId" class="w-full p-2 border rounded">
-              <option v-for="role in roles" :key="role.id" :value="role.id">
-                {{ role.name }}
-              </option>
-            </select>
-          </div>
-          <div class="flex justify-end">
-            <button type="button" @click="showAddShiftForm = false" class="bg-gray-500 text-white px-4 py-2 rounded mr-2">
-              Cancel
-            </button>
-            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">
-              Save Shift
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
     <!-- Shifts Modal -->
-    <div v-if="showShiftsModal" 
-         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div v-if="showShiftsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div class="bg-white p-6 rounded-lg w-3/4 max-h-[80vh] overflow-auto">
         <h3 class="text-xl font-bold mb-4 text-black">
           Manage Shifts - {{ currentEvent?.name }}
         </h3>
         <button
           class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mb-4"
-          @click="showAddShiftForm = true"
+          @click="addShift"
         >
           Add Shift
         </button>
@@ -338,45 +261,40 @@
               <td class="px-4 py-2 text-black border">{{ shift.role }}</td>
               <td class="px-4 py-2 text-black border">{{ shift.status }}</td>
               <td class="px-4 py-2 text-black border">
-                  <button
-                    class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 mr-2"
-                    @click="editShift(shift.id)"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 mr-2"
-                    @click="confirmShift(shift.id)"
-                  >
-                    Confirm
-                  </button>
-                  <button
-                    class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                    @click="deleteShift(shift.id)"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="mt-6 flex justify-end">
-            <button
-              class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-              @click="closeShiftsModal"
-            >
-              Close
-            </button>
-          </div>
+                <button class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 mr-2"
+                  @click="editShift(shift.id)">
+                  Edit
+                </button>
+                <button class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 mr-2"
+                  @click="confirmShift(shift.id)">
+                  Confirm
+                </button>
+                <button class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600" @click="deleteShift(shift.id)">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="mt-6 flex justify-end">
+          <button class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600" @click="closeShiftsModal">
+            Close
+          </button>
         </div>
       </div>
     </div>
+  </div>
+
+
+
 </template>
 
 
 <!-- THE FOLLOWING IS THE SCRIPT WITH API IMPLEMENTATION -->
 <script>
 import axios from 'axios';
+import ManageTasks from './components/ManageTasks.vue';
+
 
 // Configure axios defaults and interceptors
 const api = axios.create({
@@ -464,7 +382,9 @@ const endpoints = {
 
 export default {
   name: 'App',
-  
+  components: {
+    ManageTasks,
+  },
   data() {
     return {
       currentView: 'dashboard',
@@ -473,6 +393,7 @@ export default {
         { name: 'Manage Events', view: 'events', icon: 'calendar' },
         { name: 'Manage Employees', view: 'employees', icon: 'users' },
         { name: 'Manage Trucks', view: 'trucks', icon: 'truck' },
+        { name: 'Manage Tasks', view: 'tasks' },
         { name: 'Calendar', view: 'calendar', icon: 'calendar-days' }
       ],
       events: [],
