@@ -356,7 +356,7 @@ export default {
 
         async loadEmployees() {
             try {
-                const response = await axios.get(`${process.env.VUE_APP_API_GATEWAY}/employees`);
+                const response = await axios.get(`${process.env.VUE_APP_API_URL}/employees`);
                 this.employees = response.data;
             } catch (error) {
                 console.error("Error loading employees:", error);
@@ -414,9 +414,9 @@ export default {
                 };
 
                 if (this.isEditingShift) {
-                    await axios.put(`${process.env.VUE_APP_API_GATEWAY}/shifts/${this.shiftForm.id}`, shiftData);
+                    await axios.put(`${process.env.VUE_APP_API_URL}/shifts/${this.shiftForm.id}`, shiftData);
                 } else {
-                    await axios.post(`${process.env.VUE_APP_API_GATEWAY}/shifts`, shiftData);
+                    await axios.post(`${process.env.VUE_APP_API_URL}/shifts`, shiftData);
                 }
 
                 await this.loadEventShifts(this.currentEventId);
@@ -430,7 +430,7 @@ export default {
         async deleteShift(shiftId) {
             if (confirm("Are you sure you want to delete this shift?")) {
                 try {
-                    await axios.delete(`${process.env.VUE_APP_API_GATEWAY}/shifts/${shiftId}`);
+                    await axios.delete(`${process.env.VUE_APP_API_URL}/shifts/${shiftId}`);
                     await this.loadEventShifts(this.currentEventId);
                 } catch (error) {
                     console.error("Error deleting shift:", error);
@@ -471,7 +471,7 @@ export default {
         },
         async fetchEvents() {
             try {
-                const response = await axios.get(process.env.VUE_APP_API_GATEWAY + "/events");
+                const response = await axios.get(process.env.VUE_APP_API_URL + "/events");
                 this.events = response.data
                     .filter(event => event.PartitionKey === "Event")
                     .map(event => ({
@@ -550,7 +550,7 @@ export default {
                     EventName: this.eventForm.name,
                     EventDate: this.eventForm.date,
                 };
-                await axios.post(process.env.VUE_APP_API_GATEWAY + "/events", newEvent);
+                await axios.post(process.env.VUE_APP_API_URL + "/events", newEvent);
                 await this.fetchEvents();
                 this.closeModal();
                 alert("Event added successfully!");
@@ -562,7 +562,7 @@ export default {
 
         async updateEvent() {
             try {
-                const updateUrl = `${process.env.VUE_APP_API_GATEWAY}/events/Event/${this.eventForm.id}`;
+                const updateUrl = `${process.env.VUE_APP_API_URL}/events/Event/${this.eventForm.id}`;
                 const updatedEvent = {
                     PartitionKey: "Event",
                     RowKey: this.eventForm.id,
@@ -582,7 +582,7 @@ export default {
         async deleteEvent(event) {
             if (confirm("Are you sure you want to delete this event?")) {
                 try {
-                    const deleteUrl = `${process.env.VUE_APP_API_GATEWAY}/events/Event/${event.id}`;
+                    const deleteUrl = `${process.env.VUE_APP_API_URL}/events/Event/${event.id}`;
                     await axios.delete(deleteUrl);
                     this.events = this.events.filter(e => e.id !== event.id);
                     alert("Event deleted successfully!");

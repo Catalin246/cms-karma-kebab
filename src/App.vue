@@ -84,15 +84,93 @@
 
         <!-- Calendar View -->
         <div v-if="currentView === 'calendar'" class="space-y-6">
-          <div class="">
-            <CalendarView />
+          <h2 class="text-2xl font-bold text-black">Schedule Overview</h2>
+          <div class="bg-white rounded-lg shadow border p-6">
+            <div class="flex justify-between items-center mb-6">
+              <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" @click="previousMonth">
+                Previous Month
+              </button>
+              <h3 class="text-xl font-bold text-black">{{ currentMonthYear }}</h3>
+              <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" @click="nextMonth">
+                Next Month
+              </button>
+            </div>
+            <div class="grid grid-cols-7 gap-2">
+              <div v-for="day in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']" :key="day"
+                class="text-center font-bold p-2 text-black">
+                {{ day }}
+              </div>
+              <div v-for="date in calendarDates" :key="date.date" class="border p-2 min-h-24 relative">
+                <div class="font-bold text-black">{{ date.dayOfMonth }}</div>
+                <div v-for="event in date.events" :key="event.id"
+                  class="bg-blue-100 p-1 mb-1 rounded text-sm text-black">
+                  {{ event.name }}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-
-
       </div>
     </div>
+
+    <!-- Shifts Modal -->
+    <div v-if="showShiftsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div class="bg-white p-6 rounded-lg w-3/4 max-h-[80vh] overflow-auto">
+        <h3 class="text-xl font-bold mb-4 text-black">
+          Manage Shifts - {{ currentEvent?.name }}
+        </h3>
+        <button
+          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mb-4"
+          @click="addShift"
+        >
+          Add Shift
+        </button>
+        <table class="w-full">
+          <thead>
+            <tr>
+              <th class="px-4 py-2 text-left text-black border">Employee</th>
+              <th class="px-4 py-2 text-left text-black border">Start Time</th>
+              <th class="px-4 py-2 text-left text-black border">End Time</th>
+              <th class="px-4 py-2 text-left text-black border">Role</th>
+              <th class="px-4 py-2 text-left text-black border">Status</th>
+              <th class="px-4 py-2 text-left text-black border">Actions</th>
+
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="shift in currentEventShifts" :key="shift.id">
+              <td class="px-4 py-2 text-black border">{{ shift.employee }}</td>
+              <td class="px-4 py-2 text-black border">{{ shift.startTime }}</td>
+              <td class="px-4 py-2 text-black border">{{ shift.endTime }}</td>
+              <td class="px-4 py-2 text-black border">{{ shift.role }}</td>
+              <td class="px-4 py-2 text-black border">{{ shift.status }}</td>
+              <td class="px-4 py-2 text-black border">
+                <button class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 mr-2"
+                  @click="editShift(shift.id)">
+                  Edit
+                </button>
+                <button class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 mr-2"
+                  @click="confirmShift(shift.id)">
+                  Confirm
+                </button>
+                <button class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600" @click="deleteShift(shift.id)">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="mt-6 flex justify-end">
+          <button class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600" @click="closeShiftsModal">
+            Close
+          </button>
+        </div>
+      </div>
     </div>
+  </div>
+
+
+
 </template>
 
 
@@ -103,8 +181,6 @@ import ManageTasks from './components/ManageTasks.vue';
 import ManageEvents from './components/ManageEvents.vue';
 import ManageTrucks from './components/ManageTrucks.vue';
 import ManageEmployees from './components/ManageEmployees.vue';
-import CalendarView from './components/CalendarView.vue';
-
 
 
 
@@ -126,6 +202,72 @@ api.interceptors.response.use(
   }
 );
 
+// API endpoint configurations
+const endpoints = {
+  events: {
+    base: import.meta.env.VUE_APP_EVENT_SERVICE,
+    list: (startDate, endDate) =>
+      `/events?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`,
+    getById: (partitionKey, rowKey) => `/events/${partitionKey}/${rowKey}`,
+    create: '/events',
+    update: (partitionKey, rowKey) => `/events/${partitionKey}/${rowKey}`,
+    delete: (partitionKey, rowKey) => `/events/${partitionKey}/${rowKey}`,
+    getByShiftId: shiftId => `/events/shift/${shiftId}`
+  },
+  employees: {
+    base: import.meta.env.VUE_APP_EMPLOYEE_SERVICE,
+    list: '/employees',
+    getById: id => `/employees/${id}`,
+    getByRole: role => `/employees?role=${encodeURIComponent(role)}`,
+    create: '/employees',
+    update: id => `/employees/${id}`,
+    delete: id => `/employees/${id}`
+  },
+  trucks: { // THIS ONE STILL HAS TO BE UPDATES TO REFLECT TRUCK MICROSERVICE
+    base: import.meta.env.VUE_APP_TRUCK_SERVICE,
+    list: '/trucks',
+    create: '/trucks',
+    update: id => `/trucks/${id}`,
+    delete: id => `/trucks/${id}`
+  },
+  shifts: {
+    base: import.meta.env.VUE_APP_SHIFT_SERVICE,
+    list: ({ date, employeeId, shiftType, shiftId, eventId } = {}) => {
+      let queryParams = [];
+      if (date) queryParams.push(`date=${encodeURIComponent(date)}`);
+      if (employeeId) queryParams.push(`employeeId=${employeeId}`);
+      if (shiftType) queryParams.push(`shiftType=${shiftType}`);
+      if (shiftId) queryParams.push(`shiftId=${shiftId}`);
+      if (eventId) queryParams.push(`eventId=${eventId}`);
+      return `/shifts${queryParams.length ? `?${queryParams.join('&')}` : ''}`;
+    },
+    getById: shiftId => `/shifts/${shiftId}`,
+    create: '/shifts',
+    update: shiftId => `/shifts/${shiftId}`,
+    delete: shiftId => `/shifts/${shiftId}`,
+    clockIn: shiftId => `/shifts/${shiftId}/clockin`,
+    getTotalHoursByEmployee: employeeId => `/shifts/${employeeId}/hours`
+  },
+  duties: {
+    base: import.meta.env.VUE_APP_DUTY_SERVICE,
+    list: '/duties',
+    getById: (partitionKey, rowKey) => `/duties/${partitionKey}/${rowKey}`,
+    getByRole: roleId => `/duties?RoleId=${roleId}`,
+    create: '/duties',
+    update: (partitionKey, rowKey) => `/duties/${partitionKey}/${rowKey}`,
+    delete: (partitionKey, rowKey) => `/duties/${partitionKey}/${rowKey}`
+  },
+  availabilities: {
+    base: import.meta.env.VUE_APP_AVAILABILITY_SERVICE,
+    list: (startDate, endDate) =>
+      `/availability?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`,
+    getByEmployeeId: employeeID => `/availability/${employeeID}`,
+    create: '/availability',
+    update: (employeeID, id) => `/availability/${employeeID}/${id}`,
+    delete: (employeeID, id) => `/availability/${employeeID}/${id}`
+  }
+};
+
 export default {
   name: 'App',
   components: {
@@ -133,7 +275,6 @@ export default {
     ManageEvents,
     ManageTrucks,
     ManageEmployees,
-    CalendarView,
   },
   data() {
     return {
@@ -206,6 +347,33 @@ export default {
         .slice(0, 5);
     },
 
+    availableTrucks() {
+      return this.trucks
+        .filter(truck => truck.status === 'Available')
+        .slice(0, 5);
+    },
+
+    filteredEvents() {
+      return this.events.filter(event =>
+        event.name.toLowerCase().includes(this.searchEvent.toLowerCase()) ||
+        event.location.toLowerCase().includes(this.searchEvent.toLowerCase())
+      );
+    },
+
+    filteredEmployees() {
+      return this.employees.filter(employee =>
+        employee.name.toLowerCase().includes(this.searchEmployee.toLowerCase()) ||
+        employee.email.toLowerCase().includes(this.searchEmployee.toLowerCase())
+      );
+    },
+
+    filteredTrucks() {
+      return this.trucks.filter(truck =>
+        truck.name.toLowerCase().includes(this.searchTruck.toLowerCase()) ||
+        truck.model.toLowerCase().includes(this.searchTruck.toLowerCase())
+      );
+    },
+
     currentMonthYear() {
       const months = ['January', 'February', 'March', 'April', 'May', 'June', 
                      'July', 'August', 'September', 'October', 'November', 'December'];
@@ -214,6 +382,67 @@ export default {
   },
 
   methods: {
+    // API Methods - Employees
+    async fetchEmployees() {
+      this.loading.employees = true;
+      this.error.employees = null;
+      try {
+        const response = await api.get(`${endpoints.employees.base}${endpoints.employees.list}`);
+        this.employees = response.data;
+      } catch (error) {
+        this.error.employees = 'Failed to fetch employees';
+        console.error('Error fetching employees:', error);
+      } finally {
+        this.loading.employees = false;
+      }
+    },
+
+    async addEmployee(employeeData) {
+      try {
+        const response = await api.post(
+          `${endpoints.employees.base}${endpoints.employees.create}`,
+          employeeData
+        );
+        this.employees.push(response.data);
+        this.addNotification('Employee added successfully', 'success');
+        return response.data;
+      } catch (error) {
+        this.addNotification('Failed to add employee', 'error');
+        console.error('Error adding employee:', error);
+        throw error;
+      }
+    },
+
+    async editEmployee(id, employeeData) {
+      try {
+        const response = await api.put(
+          `${endpoints.employees.base}${endpoints.employees.update(id)}`,
+          employeeData
+        );
+        const index = this.employees.findIndex(e => e.id === id);
+        if (index !== -1) {
+          this.employees[index] = response.data;
+        }
+        this.addNotification('Employee updated successfully', 'success');
+        return response.data;
+      } catch (error) {
+        this.addNotification('Failed to update employee', 'error');
+        console.error('Error updating employee:', error);
+        throw error;
+      }
+    },
+
+    async deleteEmployee(id) {
+      try {
+        await api.delete(`${endpoints.employees.base}${endpoints.employees.delete(id)}`);
+        this.employees = this.employees.filter(employee => employee.id !== id);
+        this.addNotification('Employee deleted successfully', 'success');
+      } catch (error) {
+        this.addNotification('Failed to delete employee', 'error');
+        console.error('Error deleting employee:', error);
+        throw error;
+      }
+    },
 
     // UI Methods
     navigateTo(view) {
@@ -281,6 +510,11 @@ export default {
   // Lifecycle hooks
   async created() {
     try {
+      await Promise.all([
+        this.fetchEvents(),
+        this.fetchEmployees(),
+        this.fetchTrucks()
+      ]);
       this.addNotification('Application initialized successfully', 'success');
     } catch (error) {
       this.addNotification('Error initializing application', 'error');
