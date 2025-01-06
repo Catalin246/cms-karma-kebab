@@ -442,10 +442,11 @@ export default {
         getShiftStatusClass(status) {
             const baseClasses = 'px-2 py-1 rounded-full text-xs font-medium';
             const statusClasses = {
-                'CONFIRMED': 'bg-blue-100 text-blue-800',
-                'UNCOMFIRMED': 'bg-yellow-100 text-yellow-800',
+                'SCHEDULED': 'bg-blue-100 text-blue-800',
+                'IN_PROGRESS': 'bg-yellow-100 text-yellow-800',
+                'COMPLETED': 'bg-green-100 text-green-800',
                 'CANCELLED': 'bg-red-100 text-red-800'
-            }; 
+            };
             return `${baseClasses} ${statusClasses[status]}`;
         },
         formatDateTime(dateTime) {
