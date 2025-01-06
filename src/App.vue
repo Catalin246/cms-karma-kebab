@@ -100,53 +100,17 @@
           </div>
         </div>
 
-        <!-- Trucks View -->
-        <div v-if="currentView === 'trucks'" class="space-y-6">
-          <h2 class="text-2xl font-bold text-black">Manage Trucks</h2>
-          <div class="flex justify-between mb-4">
-            <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-              Add Truck
-            </button>
-            <input v-model="searchTruck" type="text" placeholder="Search trucks"
-              class="p-2 border rounded text-white" />
-          </div>
-          <div class="bg-white rounded-lg shadow border overflow-hidden">
-            <table class="w-full">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-4 py-2 text-left text-black border">ID</th>
-                  <th class="px-4 py-2 text-left text-black border">Name</th>
-                  <th class="px-4 py-2 text-left text-black border">Status</th>
-                  <th class="px-4 py-2 text-left text-black border">Last Maintenance</th>
-                  <th class="px-4 py-2 text-left text-black border">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="truck in filteredTrucks" :key="truck.id" class="border-t">
-                  <td class="px-4 py-2 text-black border">{{ truck.id }}</td>
-                  <td class="px-4 py-2 text-black border">{{ truck.name }}</td>
-                  <td class="px-4 py-2 text-black border">{{ truck.status }}</td>
-                  <td class="px-4 py-2 text-black border">{{ truck.lastMaintenance }}</td>
-                  <td class="px-4 py-2 text-black border">
-                    <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
-                      @click="editTruck(truck.id)">
-                      Edit
-                    </button>
-                    <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                      @click="deleteTruck(truck.id)">
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
         <!-- Tasks View -->
         <div v-if="currentView === 'tasks'" class="space-y-6">
           <div class="">
             <ManageTasks />
+          </div>
+        </div>
+
+        <!-- Truck View --> 
+        <div v-if="currentView === 'trucks'" class="space-y-6">
+          <div class="">
+            <ManageTrucks /> 
           </div>
         </div>
 
@@ -254,6 +218,7 @@
 import axios from 'axios';
 import ManageTasks from './components/ManageTasks.vue';
 import ManageEvents from './components/ManageEvents.vue';
+import ManageTrucks from './components/ManageTrucks.vue';
 
 
 
@@ -346,6 +311,7 @@ export default {
   components: {
     ManageTasks,
     ManageEvents,
+    ManageTrucks,
   },
   data() {
     return {
@@ -453,70 +419,6 @@ export default {
   },
 
   methods: {
-    // API Methods - Events
-    async fetchEvents() {
-      this.loading.events = true;
-      this.error.events = null;
-      try {
-        const response = await api.get(`${endpoints.events.base}${endpoints.events.list}`);
-        this.events = response.data;
-        this.addNotification('Events loaded successfully', 'success');
-      } catch (error) {
-        this.error.events = 'Failed to fetch events';
-        this.addNotification('Failed to load events', 'error');
-        console.error('Error fetching events:', error);
-      } finally {
-        this.loading.events = false;
-      }
-    },
-
-    async addEvent(eventData) {
-      try {
-        const response = await api.post(
-          `${endpoints.events.base}${endpoints.events.create}`,
-          eventData
-        );
-        this.events.push(response.data);
-        this.addNotification('Event added successfully', 'success');
-        return response.data;
-      } catch (error) {
-        this.addNotification('Failed to add event', 'error');
-        console.error('Error adding event:', error);
-        throw error;
-      }
-    },
-
-    async editEvent(id, eventData) {
-      try {
-        const response = await api.put(
-          `${endpoints.events.base}${endpoints.events.update(id)}`,
-          eventData
-        );
-        const index = this.events.findIndex(e => e.id === id);
-        if (index !== -1) {
-          this.events[index] = response.data;
-        }
-        this.addNotification('Event updated successfully', 'success');
-        return response.data;
-      } catch (error) {
-        this.addNotification('Failed to update event', 'error');
-        console.error('Error updating event:', error);
-        throw error;
-      }
-    },
-
-    async deleteEvent(id) {
-      try {
-        await api.delete(`${endpoints.events.base}${endpoints.events.delete(id)}`);
-        this.events = this.events.filter(event => event.id !== id);
-        this.addNotification('Event deleted successfully', 'success');
-      } catch (error) {
-        this.addNotification('Failed to delete event', 'error');
-        console.error('Error deleting event:', error);
-        throw error;
-      }
-    },
-
     // API Methods - Employees
     async fetchEmployees() {
       this.loading.employees = true;
@@ -576,91 +478,6 @@ export default {
         this.addNotification('Failed to delete employee', 'error');
         console.error('Error deleting employee:', error);
         throw error;
-      }
-    },
-
-    // API Methods - Trucks
-    async fetchTrucks() {
-      this.loading.trucks = true;
-      this.error.trucks = null;
-      try {
-        const response = await api.get(`${endpoints.trucks.base}${endpoints.trucks.list}`);
-        this.trucks = response.data;
-      } catch (error) {
-        this.error.trucks = 'Failed to fetch trucks';
-        console.error('Error fetching trucks:', error);
-      } finally {
-        this.loading.trucks = false;
-      }
-    },
-
-    async addTruck(truckData) {
-      try {
-        const response = await api.post(
-          `${endpoints.trucks.base}${endpoints.trucks.create}`,
-          truckData
-        );
-        this.trucks.push(response.data);
-        this.addNotification('Truck added successfully', 'success');
-        return response.data;
-      } catch (error) {
-        this.addNotification('Failed to add truck', 'error');
-        console.error('Error adding truck:', error);
-        throw error;
-      }
-    },
-
-    async editTruck(id, truckData) {
-      try {
-        const response = await api.put(
-          `${endpoints.trucks.base}${endpoints.trucks.update(id)}`,
-          truckData
-        );
-        const index = this.trucks.findIndex(t => t.id === id);
-        if (index !== -1) {
-          this.trucks[index] = response.data;
-        }
-        this.addNotification('Truck updated successfully', 'success');
-        return response.data;
-      } catch (error) {
-        this.addNotification('Failed to update truck', 'error');
-        console.error('Error updating truck:', error);
-        throw error;
-      }
-    },
-
-    async deleteTruck(id) {
-      try {
-        await api.delete(`${endpoints.trucks.base}${endpoints.trucks.delete(id)}`);
-        this.trucks = this.trucks.filter(truck => truck.id !== id);
-        this.addNotification('Truck deleted successfully', 'success');
-      } catch (error) {
-        this.addNotification('Failed to delete truck', 'error');
-        console.error('Error deleting truck:', error);
-        throw error;
-      }
-    },
-
-    // Shifts Management
-    async manageShifts(eventId) {
-      this.loading.shifts = true;
-      this.error.shifts = null;
-      try {
-        const event = this.events.find(e => e.id === eventId);
-        if (event) {
-          this.currentEvent = event;
-          const response = await api.get(
-            `${endpoints.events.base}${endpoints.events.shifts(eventId)}`
-          );
-          this.currentEventShifts = response.data;
-          this.showShiftsModal = true;
-        }
-      } catch (error) {
-        this.error.shifts = 'Failed to fetch shifts';
-        this.addNotification('Failed to load shifts', 'error');
-        console.error('Error fetching shifts:', error);
-      } finally {
-        this.loading.shifts = false;
       }
     },
 
