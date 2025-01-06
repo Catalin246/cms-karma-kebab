@@ -55,54 +55,6 @@
           </div>
         </div>
 
-        <!-- Events View -->
-        <div v-if="currentView === 'events'" class="space-y-6">
-          <h2 class="text-2xl font-bold text-black">Manage Events</h2>
-          <div class="flex justify-between mb-4">
-            <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-              Add Event
-            </button>
-            <input v-model="searchEvent" type="text" placeholder="Search events"
-              class="p-2 border rounded text-white" />
-          </div>
-          <div class="bg-white rounded-lg shadow border overflow-hidden">
-            <table class="w-full">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-4 py-2 text-left text-black border">ID</th>
-                  <th class="px-4 py-2 text-left text-black border">Name</th>
-                  <th class="px-4 py-2 text-left text-black border">Date</th>
-                  <th class="px-4 py-2 text-left text-black border">Shifts</th>
-                  <th class="px-4 py-2 text-left text-black border">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="event in filteredEvents" :key="event.id" class="border-t">
-                  <td class="px-4 py-2 text-black border">{{ event.id }}</td>
-                  <td class="px-4 py-2 text-black border">{{ event.name }}</td>
-                  <td class="px-4 py-2 text-black border">{{ event.date }}</td>
-                  <td class="px-4 py-2 text-black border">
-                    <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                      @click="manageShifts(event.id)">
-                      Manage Shifts
-                    </button>
-                  </td>
-                  <td class="px-4 py-2 text-black border">
-                    <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
-                      @click="editEvent(event.id)">
-                      Edit
-                    </button>
-                    <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                      @click="deleteEvent(event.id)">
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
         <!-- Employees View -->
         <div v-if="currentView === 'employees'" class="space-y-6">
           <h2 class="text-2xl font-bold text-black">Manage Employees</h2>
@@ -195,6 +147,13 @@
         <div v-if="currentView === 'tasks'" class="space-y-6">
           <div class="">
             <ManageTasks />
+          </div>
+        </div>
+
+        <!-- Events View -->
+        <div v-if="currentView === 'events'" class="space-y-6">
+          <div class="">
+            <ManageEvents />
           </div>
         </div>
 
@@ -294,6 +253,8 @@
 <script>
 import axios from 'axios';
 import ManageTasks from './components/ManageTasks.vue';
+import ManageEvents from './components/ManageEvents.vue';
+
 
 
 // Configure axios defaults and interceptors
@@ -384,6 +345,7 @@ export default {
   name: 'App',
   components: {
     ManageTasks,
+    ManageEvents,
   },
   data() {
     return {
