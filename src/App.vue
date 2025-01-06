@@ -54,49 +54,10 @@
             </div>
           </div>
         </div>
-
-        <!-- Employees View -->
+        <!-- Employee View -->
         <div v-if="currentView === 'employees'" class="space-y-6">
-          <h2 class="text-2xl font-bold text-black">Manage Employees</h2>
-          <div class="flex justify-between mb-4">
-            <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-              Add Employee
-            </button>
-            <input v-model="searchEmployee" type="text" placeholder="Search employees"
-              class="p-2 border rounded text-white" />
-          </div>
-          <div class="bg-white rounded-lg shadow border overflow-hidden">
-            <table class="w-full">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-4 py-2 text-left text-black border">ID</th>
-                  <th class="px-4 py-2 text-left text-black border">Name</th>
-                  <th class="px-4 py-2 text-left text-black border">Role</th>
-                  <th class="px-4 py-2 text-left text-black border">Contact</th>
-                  <th class="px-4 py-2 text-left text-black border">Status</th>
-                  <th class="px-4 py-2 text-left text-black border">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="employee in filteredEmployees" :key="employee.id" class="border-t">
-                  <td class="px-4 py-2 text-black border">{{ employee.id }}</td>
-                  <td class="px-4 py-2 text-black border">{{ employee.name }}</td>
-                  <td class="px-4 py-2 text-black border">{{ employee.role }}</td>
-                  <td class="px-4 py-2 text-black border">{{ employee.contact }}</td>
-                  <td class="px-4 py-2 text-black border">{{ employee.status }}</td>
-                  <td class="px-4 py-2 text-black border">
-                    <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
-                      @click="editEmployee(employee.id)">
-                      Edit
-                    </button>
-                    <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                      @click="deleteEmployee(employee.id)">
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="">
+            <ManageEmployees />
           </div>
         </div>
 
@@ -219,6 +180,7 @@ import axios from 'axios';
 import ManageTasks from './components/ManageTasks.vue';
 import ManageEvents from './components/ManageEvents.vue';
 import ManageTrucks from './components/ManageTrucks.vue';
+import ManageEmployees from './components/ManageEmployees.vue';
 
 
 
@@ -312,6 +274,7 @@ export default {
     ManageTasks,
     ManageEvents,
     ManageTrucks,
+    ManageEmployees,
   },
   data() {
     return {
