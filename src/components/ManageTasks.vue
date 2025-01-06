@@ -100,7 +100,7 @@ export default {
     methods: {
         async fetchTasks() {
             try {
-                const response = await axios.get("http://localhost:3007/duties");
+                const response = await axios.get(`${process.env.VUE_APP_API_GATEWAY}/duties`);
                 this.tasks = response.data
                     .filter(task => task.PartitionKey === "Duty")
                     .map(task => ({
@@ -115,8 +115,7 @@ export default {
         },
         async loadTasks() {
             try {
-                const response = await axios.get("http://localhost:3007/duties");
-                // Set the tasks data with the response
+                const response = await axios.get(`${process.env.VUE_APP_API_GATEWAY}/duties`);
                 this.tasks = response.data.map(task => ({
                     id: task.RowKey, // RowKey is the ID of the task
                     name: task.DutyName,
@@ -136,14 +135,8 @@ export default {
                     DutyName: this.taskForm.name,
                     DutyDescription: this.taskForm.description,
                 };
-
-                // Make the POST request to the backend to add the new task
-                await axios.post("http://localhost:3007/duties", newTask);
-
-                // Reload the task list by calling the method to fetch tasks
+                await axios.post(`${process.env.VUE_APP_API_GATEWAY}/duties`, newTask);
                 this.loadTasks();
-
-                // Close the modal and show success message
                 this.closeModal();
                 alert("Task added successfully!");
             } catch (error) {
@@ -152,10 +145,9 @@ export default {
             }
         },
 
-
         async updateTask() {
             try {
-                const updateUrl = `http://localhost:3007/duties/Duty/${this.taskForm.id}`;
+                const updateUrl = `${process.env.VUE_APP_API_GATEWAY}/duties/Duty/${this.taskForm.id}`;
                 const updatedTask = {
                     PartitionKey: "Duty",
                     RowKey: this.taskForm.id,
@@ -182,7 +174,7 @@ export default {
         },
         async deleteTask(task) {
             try {
-                const deleteUrl = `http://localhost:3007/duties/Duty/${task.id}`;
+                const deleteUrl = `${process.env.VUE_APP_API_GATEWAY}/duties/Duty/${task.id}`;
                 await axios.delete(deleteUrl);
                 this.tasks = this.tasks.filter(t => t.id !== task.id);
                 alert("Task deleted successfully!");
