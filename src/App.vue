@@ -262,6 +262,49 @@
       </div>
     </div>
 
+
+    <!-- Add Shift Form Modal -->
+    <div v-if="showAddShiftForm" 
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div class="bg-white p-6 rounded-lg w-1/3">
+        <h3 class="text-xl font-bold mb-4 text-black">Add New Shift</h3>
+        <form @submit.prevent="submitShift">
+          <div class="mb-4">
+            <label for="employee" class="block text-black mb-2">Employee</label>
+            <select id="employee" v-model="newShift.employeeId" class="w-full p-2 border rounded">
+              <option v-for="employee in employees" :key="employee.id" :value="employee.id">
+                {{ employee.name }}
+              </option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label for="startTime" class="block text-black mb-2">Start Time</label>
+            <input type="datetime-local" id="startTime" v-model="newShift.startTime" class="w-full p-2 border rounded">
+          </div>
+          <div class="mb-4">
+            <label for="endTime" class="block text-black mb-2">End Time</label>
+            <input type="datetime-local" id="endTime" v-model="newShift.endTime" class="w-full p-2 border rounded">
+          </div>
+          <div class="mb-4">
+            <label for="role" class="block text-black mb-2">Role</label>
+            <select id="role" v-model="newShift.roleId" class="w-full p-2 border rounded">
+              <option v-for="role in roles" :key="role.id" :value="role.id">
+                {{ role.name }}
+              </option>
+            </select>
+          </div>
+          <div class="flex justify-end">
+            <button type="button" @click="showAddShiftForm = false" class="bg-gray-500 text-white px-4 py-2 rounded mr-2">
+              Cancel
+            </button>
+            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">
+              Save Shift
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- Shifts Modal -->
     <div v-if="showShiftsModal" 
          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -271,7 +314,7 @@
         </h3>
         <button
           class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mb-4"
-          @click="addShift"
+          @click="showAddShiftForm = true"
         >
           Add Shift
         </button>
@@ -331,239 +374,6 @@
 </template>
 
 
-<!-- <script>
-import axios from 'axios';
-
-export default {
-  name: 'App',
-  data() {
-    return {
-      currentView: 'dashboard',
-      sidebarItems: [
-        { name: 'Dashboard', view: 'dashboard' },
-        { name: 'Manage Events', view: 'events' },
-        { name: 'Manage Employees', view: 'employees' },
-        { name: 'Manage Trucks', view: 'trucks' },
-        { name: 'Calendar', view: 'calendar' }
-      ],
-      events: [
-        // Sample data for testing
-        { id: 1, name: 'Summer Festival', date: '2024-07-15' },
-        { id: 2, name: 'Food Fair', date: '2024-08-20' }
-      ],
-      employees: [
-        // Sample data for testing
-        { id: 1, name: 'John Doe', role: 'Manager', contact: '123-456-7890', status: 'Active' },
-        { id: 2, name: 'Jane Smith', role: 'Staff', contact: '098-765-4321', status: 'Active' }
-      ],
-      trucks: [
-        // Sample data for testing
-        { id: 1, name: 'Truck A', status: 'Available', lastMaintenance: '2024-06-01' },
-        { id: 2, name: 'Truck B', status: 'In Service', lastMaintenance: '2024-05-15' }
-      ],
-      currentEvent: null,
-      currentEventShifts: [],
-      showShiftsModal: false,
-      searchEvent: '',
-      searchEmployee: '',
-      searchTruck: '',
-      currentMonth: new Date(),
-    };
-  },
-  computed: {
-    upcomingEvents() {
-      return this.events
-        .filter(event => new Date(event.date) >= new Date())
-        .sort((a, b) => new Date(a.date) - new Date(b.date))
-        .slice(0, 5);
-    },
-    activeEmployees() {
-      return this.employees
-        .filter(employee => employee.status === 'Active')
-        .slice(0, 5);
-    },
-    filteredEvents() {
-      return this.events.filter(event =>
-        event.name.toLowerCase().includes(this.searchEvent.toLowerCase())
-      );
-    },
-    filteredEmployees() {
-      return this.employees.filter(employee =>
-        employee.name.toLowerCase().includes(this.searchEmployee.toLowerCase())
-      );
-    },
-    filteredTrucks() {
-      return this.trucks.filter(truck =>
-        truck.name.toLowerCase().includes(this.searchTruck.toLowerCase())
-      );
-    },
-    currentMonthYear() {
-      const months = ['January', 'February', 'March', 'April', 'May', 'June', 
-                     'July', 'August', 'September', 'October', 'November', 'December'];
-      return `${months[this.currentMonth.getMonth()]} ${this.currentMonth.getFullYear()}`;
-    },
-    calendarDates() {
-      const year = this.currentMonth.getFullYear();
-      const month = this.currentMonth.getMonth();
-      const firstDay = new Date(year, month, 1);
-      const lastDay = new Date(year, month + 1, 0);
-      const daysInMonth = lastDay.getDate();
-      
-      // Get first day of month
-      const firstDayOfWeek = firstDay.getDay();
-      
-      const dates = [];
-      
-      // Previous month's days
-      const prevMonthDays = new Date(year, month, 0).getDate();
-      for (let i = firstDayOfWeek - 1; i >= 0; i--) {
-        dates.push({
-          date: new Date(year, month - 1, prevMonthDays - i),
-          dayOfMonth: prevMonthDays - i,
-          isCurrentMonth: false,
-          events: []
-        });
-      }
-      
-      // Current month's days
-      for (let day = 1; day <= daysInMonth; day++) {
-        const currentDate = new Date(year, month, day);
-        const dateStr = currentDate.toISOString().split('T')[0];
-        dates.push({
-          date: currentDate,
-          dayOfMonth: day,
-          isCurrentMonth: true,
-          events: this.events.filter(event => event.date === dateStr)
-        });
-      }
-      
-      // Next month's days
-      const remainingDays = 42 - dates.length;
-      for (let day = 1; day <= remainingDays; day++) {
-        dates.push({
-          date: new Date(year, month + 1, day),
-          dayOfMonth: day,
-          isCurrentMonth: false,
-          events: []
-        });
-      }
-      
-      return dates;
-    }
-  },
-  methods: {
-    navigateTo(view) {
-      this.currentView = view;
-    },
-    previousMonth() {
-      this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() - 1);
-    },
-    nextMonth() {
-      this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + 1);
-    },
-    addEvent() {
-      const newEvent = {
-        id: this.events.length + 1,
-        name: 'New Event',
-        date: new Date().toISOString().split('T')[0]
-      };
-      this.events.push(newEvent);
-    },
-    editEvent(id) {
-      const event = this.events.find(e => e.id === id);
-      if (event) {
-        event.name = 'Updated Event Name';
-      }
-    },
-    deleteEvent(id) {
-      this.events = this.events.filter(event => event.id !== id);
-    },
-    addEmployee() {
-      const newEmployee = {
-        id: this.employees.length + 1,
-        name: 'New Employee',
-        role: 'Staff',
-        contact: '',
-        status: 'Active'
-      };
-      this.employees.push(newEmployee);
-    },
-    editEmployee(id) {
-      const employee = this.employees.find(e => e.id === id);
-      if (employee) {
-        employee.name = 'Updated Employee Name';
-      }
-    },
-    deleteEmployee(id) {
-      this.employees = this.employees.filter(employee => employee.id !== id);
-    },
-    addTruck() {
-      const newTruck = {
-        id: this.trucks.length + 1,
-        name: 'New Truck',
-        status: 'Available',
-        lastMaintenance: new Date().toISOString().split('T')[0]
-      };
-      this.trucks.push(newTruck);
-    },
-    editTruck(id) {
-      const truck = this.trucks.find(t => t.id === id);
-      if (truck) {
-        truck.name = 'Updated Truck Name';
-      }
-    },
-    deleteTruck(id) {
-      this.trucks = this.trucks.filter(truck => truck.id !== id);
-    },
-    manageShifts(eventId) {
-      const event = this.events.find(e => e.id === eventId);
-      if (event) {
-        this.currentEvent = event;
-        // Sample shifts data for testing
-        this.currentEventShifts = [
-          { id: 1, employee: "John Doe", startTime: '09:00', endTime: '17:00', role: 'Staff', status: 'Pending' },
-          { id: 2,  employee: "John Doe", startTime: '10:00', endTime: '18:00', role: 'Manager', status: 'Confirmed' }
-        ];
-        this.showShiftsModal = true;
-      }
-    },
-    closeShiftsModal() {
-      this.showShiftsModal = false;
-      this.currentEvent = null;
-      this.currentEventShifts = [];
-    },
-    addShift() {
-      if (!this.currentEvent) return;
-      const newShift = {
-        id: this.currentEventShifts.length + 1,
-        startTime: '09:00',
-        endTime: '17:00',
-        role: 'Staff',
-        status: 'Pending'
-      };
-      this.currentEventShifts.push(newShift);
-    },
-    editShift(id) {
-      const shift = this.currentEventShifts.find(s => s.id === id);
-      if (shift) {
-        shift.startTime = '10:00';
-        shift.endTime = '18:00';
-      }
-    },
-    confirmShift(id) {
-      const shift = this.currentEventShifts.find(s => s.id === id);
-      if (shift) {
-        shift.status = 'Confirmed';
-      }
-    },
-    deleteShift(id) {
-      this.currentEventShifts = this.currentEventShifts.filter(shift => shift.id !== id);
-    }
-  }
-};
-</script> -->
-
-
 <!-- THE FOLLOWING IS THE SCRIPT WITH API IMPLEMENTATION -->
 <script>
 import axios from 'axios';
@@ -589,26 +399,66 @@ api.interceptors.response.use(
 // API endpoint configurations
 const endpoints = {
   events: {
-    base: process.env.VUE_APP_EVENTS_SERVICE_URL || 'http://localhost:3000',
-    list: '/api/events',
-    create: '/api/events',
-    update: id => `/api/events/${id}`,
-    delete: id => `/api/events/${id}`,
-    shifts: id => `/api/events/${id}/shifts`
+    base: import.meta.env.VUE_APP_EVENT_SERVICE,
+    list: (startDate, endDate) =>
+      `/events?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`,
+    getById: (partitionKey, rowKey) => `/events/${partitionKey}/${rowKey}`,
+    create: '/events',
+    update: (partitionKey, rowKey) => `/events/${partitionKey}/${rowKey}`,
+    delete: (partitionKey, rowKey) => `/events/${partitionKey}/${rowKey}`,
+    getByShiftId: shiftId => `/events/shift/${shiftId}`
   },
   employees: {
-    base: process.env.VUE_APP_EMPLOYEES_SERVICE_URL || 'http://localhost:3000',
-    list: '/api/employees',
-    create: '/api/employees',
-    update: id => `/api/employees/${id}`,
-    delete: id => `/api/employees/${id}`
+    base: import.meta.env.VUE_APP_EMPLOYEE_SERVICE,
+    list: '/employees',
+    getById: id => `/employees/${id}`,
+    getByRole: role => `/employees?role=${encodeURIComponent(role)}`,
+    create: '/employees',
+    update: id => `/employees/${id}`,
+    delete: id => `/employees/${id}`
   },
-  trucks: {
-    base: process.env.VUE_APP_TRUCKS_SERVICE_URL || 'http://localhost:3000',
-    list: '/api/trucks',
-    create: '/api/trucks',
-    update: id => `/api/trucks/${id}`,
-    delete: id => `/api/trucks/${id}`
+  trucks: { // THIS ONE STILL HAS TO BE UPDATES TO REFLECT TRUCK MICROSERVICE
+    base: import.meta.env.VUE_APP_TRUCK_SERVICE,
+    list: '/trucks',
+    create: '/trucks',
+    update: id => `/trucks/${id}`,
+    delete: id => `/trucks/${id}`
+  },
+  shifts: {
+    base: import.meta.env.VUE_APP_SHIFT_SERVICE,
+    list: ({ date, employeeId, shiftType, shiftId, eventId } = {}) => {
+      let queryParams = [];
+      if (date) queryParams.push(`date=${encodeURIComponent(date)}`);
+      if (employeeId) queryParams.push(`employeeId=${employeeId}`);
+      if (shiftType) queryParams.push(`shiftType=${shiftType}`);
+      if (shiftId) queryParams.push(`shiftId=${shiftId}`);
+      if (eventId) queryParams.push(`eventId=${eventId}`);
+      return `/shifts${queryParams.length ? `?${queryParams.join('&')}` : ''}`;
+    },
+    getById: shiftId => `/shifts/${shiftId}`,
+    create: '/shifts',
+    update: shiftId => `/shifts/${shiftId}`,
+    delete: shiftId => `/shifts/${shiftId}`,
+    clockIn: shiftId => `/shifts/${shiftId}/clockin`,
+    getTotalHoursByEmployee: employeeId => `/shifts/${employeeId}/hours`
+  },
+  duties: {
+    base: import.meta.env.VUE_APP_DUTY_SERVICE,
+    list: '/duties',
+    getById: (partitionKey, rowKey) => `/duties/${partitionKey}/${rowKey}`,
+    getByRole: roleId => `/duties?RoleId=${roleId}`,
+    create: '/duties',
+    update: (partitionKey, rowKey) => `/duties/${partitionKey}/${rowKey}`,
+    delete: (partitionKey, rowKey) => `/duties/${partitionKey}/${rowKey}`
+  },
+  availabilities: {
+    base: import.meta.env.VUE_APP_AVAILABILITY_SERVICE,
+    list: (startDate, endDate) =>
+      `/availability?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`,
+    getByEmployeeId: employeeID => `/availability/${employeeID}`,
+    create: '/availability',
+    update: (employeeID, id) => `/availability/${employeeID}/${id}`,
+    delete: (employeeID, id) => `/availability/${employeeID}/${id}`
   }
 };
 
