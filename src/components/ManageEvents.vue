@@ -74,7 +74,7 @@
         </div>
         <!-- Event Modal Form -->
         <div v-if="showModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-10">
-            <div class="bg-white p-6 rounded-lg w-2/3">
+            <div class="bg-white p-6 rounded-lg w-2/3 max-h-[80vh] overflow-auto"> <!-- Add max-height and overflow -->
                 <h3 class="text-xl text-violet-700 font-bold mb-4">{{ isEdit ? 'Edit Event' : 'Add Event' }}</h3>
                 <form @submit.prevent="handleSubmit" class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
@@ -115,6 +115,12 @@
                                 class="w-full p-2 border rounded bg-white text-gray-900" 
                                 type="number" step="0.01" min="0" />
                         </div>
+                        <div>
+                            <label for="shifts" class="block text-gray-700">Number of Employees</label>
+                            <input id="shifts" v-model="eventForm.numberofemps"
+                                class="w-half p-2 border rounded bg-white text-gray-900" 
+                                type="number" step="1" min="0" />
+                        </div>
 
                         <div>
                             <label class="block text-gray-700">Status</label>
@@ -133,7 +139,6 @@
                                     <input type="radio" v-model="eventForm.status" value="CANCELLED"
                                         class="form-radio" />
                                     <span class="ml-2 text-black">Cancelled</span>
-
                                 </label>
                             </div>
                         </div>
@@ -173,6 +178,7 @@
                 </form>
             </div>
         </div>
+
 
         <!-- Shifts Management Modal -->
         <div v-if="showShiftsModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-20">
