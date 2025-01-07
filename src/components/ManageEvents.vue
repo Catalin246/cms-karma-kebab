@@ -1,5 +1,5 @@
 <template>
-        <div class="manage-events">
+    <div class="manage-events">
         <h2 class="text-2xl font-bold text-black">Manage Events</h2>
         <div class="flex justify-between mb-4">
             <button @click="openModal('add')" class="bg-green-500 text-white px-4 py-2 mt-3 rounded hover:bg-green-600">
@@ -9,7 +9,9 @@
                 class="p-2 border rounded text-black" />
         </div>
         <div class="bg-white rounded-lg shadow border overflow-hidden">
+            <!-- Main Events Table -->
             <table class="w-full">
+                <!-- Table Header -->
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-4 py-2 text-left text-black border">Name</th>
@@ -21,6 +23,7 @@
                         <th class="px-4 py-2 text-left text-black border">Actions</th>
                     </tr>
                 </thead>
+                <!-- Table Body -->
                 <tbody>
                     <tr v-for="event in filteredEvents" :key="event.id" class="border-t">
                         <td class="px-4 py-2 text-black border">
@@ -59,12 +62,14 @@
                 </tbody>
             </table>
         </div>
-        <!-- Updated Modal Form -->
+
+        <!-- Event Modal Form -->
         <div v-if="showModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-10">
             <div class="bg-white p-6 rounded-lg w-2/3">
                 <h3 class="text-xl text-violet-700 font-bold mb-4">{{ isEdit ? 'Edit Event' : 'Add Event' }}</h3>
                 <form @submit.prevent="handleSubmit" class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
+                        <!-- Event Form Fields -->
                         <div>
                             <label for="eventName" class="block text-gray-700">Event Name*</label>
                             <input id="eventName" v-model="eventForm.name"
@@ -158,126 +163,127 @@
                 </form>
             </div>
         </div>
+
         <!-- Shifts Management Modal -->
-    <div v-if="showShiftsModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-20">
-        <div class="bg-white p-6 rounded-lg w-3/4 max-h-[80vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl text-violet-700 font-bold">Manage Event Shifts</h3>
-                <button @click="closeShiftsModal" class="text-gray-500 hover:text-gray-700">
-                    <span class="text-2xl">&times;</span>
-                </button>
-            </div>
-
-            <div class="mb-4">
-                <button @click="addNewShift" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-                    Add Shift
-                </button>
-            </div>
-
-            <table class="w-full border-collapse">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-4 py-2 text-left border">Start Time</th>
-                        <th class="px-4 py-2 text-left border">End Time</th>
-                        <th class="px-4 py-2 text-left border">Employee</th>
-                        <th class="px-4 py-2 text-left border">Type</th>
-                        <th class="px-4 py-2 text-left border">Status</th>
-                        <th class="px-4 py-2 text-left border">Clock In/Out</th>
-                        <th class="px-4 py-2 text-left border">Hours</th>
-                        <th class="px-4 py-2 text-left border">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="shift in eventShifts" :key="shift.id">
-                        <td class="px-4 py-2 border">{{ formatDateTime(shift.startTime) }}</td>
-                        <td class="px-4 py-2 border">{{ formatDateTime(shift.endTime) }}</td>
-                        <td class="px-4 py-2 border">{{ shift.employeeName }}</td>
-                        <td class="px-4 py-2 border">{{ shift.shiftType }}</td>
-                        <td class="px-4 py-2 border">
-                            <span :class="getShiftStatusClass(shift.status)">
-                                {{ shift.status }}
-                            </span>
-                        </td>
-                        <td class="px-4 py-2 border">
-                            <div>In: {{ shift.clockInTime ? formatDateTime(shift.clockInTime) : 'Not clocked in' }}</div>
-                            <div>Out: {{ shift.clockOutTime ? formatDateTime(shift.clockOutTime) : 'Not clocked out' }}</div>
-                        </td>
-                        <td class="px-4 py-2 border">{{ shift.shiftHours.toFixed(2) }}</td>
-                        <td class="px-4 py-2 border">
-                            <button @click="editShift(shift)" 
-                                class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2">
-                                Edit
-                            </button>
-                            <button @click="deleteShift(shift.id)"
-                                class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Shift Edit Modal -->
-    <div v-if="showShiftEditModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-30">
-        <div class="bg-white p-6 rounded-lg w-1/2">
-            <h3 class="text-xl text-violet-700 font-bold mb-4">
-                {{ isEditingShift ? 'Edit Shift' : 'Add Shift' }}
-            </h3>
-            <form @submit.prevent="handleShiftSubmit">
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-gray-700">Start Time</label>
-                        <input v-model="shiftForm.startTime" type="datetime-local"
-                            class="w-full p-2 border rounded" required />
-                    </div>
-                    <div>
-                        <label class="block text-gray-700">End Time</label>
-                        <input v-model="shiftForm.endTime" type="datetime-local"
-                            class="w-full p-2 border rounded" required />
-                    </div>
-                    <div>
-                        <label class="block text-gray-700">Employee</label>
-                        <select v-model="shiftForm.employeeId"
-                            class="w-full p-2 border rounded" required>
-                            <option v-for="employee in employees" :key="employee.id" :value="employee.id">
-                                {{ employee.name }}
-                            </option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700">Shift Type</label>
-                        <select v-model="shiftForm.shiftType"
-                            class="w-full p-2 border rounded" required>
-                            <option value="REGULAR">Regular</option>
-                            <option value="OVERTIME">Overtime</option>
-                            <option value="EMERGENCY">Emergency</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700">Status</label>
-                        <select v-model="shiftForm.status"
-                            class="w-full p-2 border rounded" required>
-                            <option value="SCHEDULED">Scheduled</option>
-                            <option value="IN_PROGRESS">In Progress</option>
-                            <option value="COMPLETED">Completed</option>
-                            <option value="CANCELLED">Cancelled</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="flex justify-end space-x-4">
-                    <button type="button" @click="closeShiftEditModal"
-                        class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
-                        Cancel
-                    </button>
-                    <button type="submit"
-                        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                        {{ isEditingShift ? 'Update Shift' : 'Add Shift' }}
+        <div v-if="showShiftsModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-20">
+            <div class="bg-white p-6 rounded-lg w-3/4 max-h-[80vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl text-violet-700 font-bold">Manage Event Shifts</h3>
+                    <button @click="closeShiftsModal" class="text-gray-500 hover:text-gray-700">
+                        <span class="text-2xl">&times;</span>
                     </button>
                 </div>
-            </form>
+
+                <div class="mb-4">
+                    <button @click="addNewShift" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                        Add Shift
+                    </button>
+                </div>
+
+                <table class="w-full border-collapse">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left border">Start Time</th>
+                            <th class="px-4 py-2 text-left border">End Time</th>
+                            <th class="px-4 py-2 text-left border">Employee</th>
+                            <th class="px-4 py-2 text-left border">Type</th>
+                            <th class="px-4 py-2 text-left border">Status</th>
+                            <th class="px-4 py-2 text-left border">Clock In/Out</th>
+                            <th class="px-4 py-2 text-left border">Hours</th>
+                            <th class="px-4 py-2 text-left border">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="shift in eventShifts" :key="shift.id">
+                            <td class="px-4 py-2 border">{{ formatDateTime(shift.startTime) }}</td>
+                            <td class="px-4 py-2 border">{{ formatDateTime(shift.endTime) }}</td>
+                            <td class="px-4 py-2 border">{{ shift.employeeName }}</td>
+                            <td class="px-4 py-2 border">{{ shift.shiftType }}</td>
+                            <td class="px-4 py-2 border">
+                                <span :class="getShiftStatusClass(shift.status)">
+                                    {{ shift.status }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-2 border">
+                                <div>In: {{ shift.clockInTime ? formatDateTime(shift.clockInTime) : 'Not clocked in' }}</div>
+                                <div>Out: {{ shift.clockOutTime ? formatDateTime(shift.clockOutTime) : 'Not clocked out' }}</div>
+                            </td>
+                            <td class="px-4 py-2 border">{{ shift.shiftHours.toFixed(2) }}</td>
+                            <td class="px-4 py-2 border">
+                                <button @click="editShift(shift)" 
+                                    class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2">
+                                    Edit
+                                </button>
+                                <button @click="deleteShift(shift.id)"
+                                    class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
+
+        <!-- Shift Edit Modal -->
+        <div v-if="showShiftEditModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-30">
+            <div class="bg-white p-6 rounded-lg w-1/2">
+                <h3 class="text-xl text-violet-700 font-bold mb-4">
+                    {{ isEditingShift ? 'Edit Shift' : 'Add Shift' }}
+                </h3>
+                <form @submit.prevent="handleShiftSubmit">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-700">Start Time</label>
+                            <input v-model="shiftForm.startTime" type="datetime-local"
+                                class="w-full p-2 border rounded" required />
+                        </div>
+                        <div>
+                            <label class="block text-gray-700">End Time</label>
+                            <input v-model="shiftForm.endTime" type="datetime-local"
+                                class="w-full p-2 border rounded" required />
+                        </div>
+                        <div>
+                            <label class="block text-gray-700">Employee</label>
+                            <select v-model="shiftForm.employeeId"
+                                class="w-full p-2 border rounded" required>
+                                <option v-for="employee in employees" :key="employee.id" :value="employee.id">
+                                    {{ employee.name }}
+                                </option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700">Shift Type</label>
+                            <select v-model="shiftForm.shiftType"
+                                class="w-full p-2 border rounded" required>
+                                <option value="REGULAR">Regular</option>
+                                <option value="OVERTIME">Overtime</option>
+                                <option value="EMERGENCY">Emergency</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700">Status</label>
+                            <select v-model="shiftForm.status"
+                                class="w-full p-2 border rounded" required>
+                                <option value="SCHEDULED">Scheduled</option>
+                                <option value="IN_PROGRESS">In Progress</option>
+                                <option value="COMPLETED">Completed</option>
+                                <option value="CANCELLED">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" @click="closeShiftEditModal"
+                            class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                            {{ isEditingShift ? 'Update Shift' : 'Add Shift' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </template>
@@ -448,17 +454,19 @@ export default {
             }; 
             return `${baseClasses} ${statusClasses[status]}`;
         },
+
         formatDateTime(dateTime) {
-        const date = new Date(dateTime);
-        return date.toLocaleString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
+            const date = new Date(dateTime);
+            return date.toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
             });
         },
+
         getStatusClass(status) {
             const baseClasses = 'px-2 py-1 rounded-full text-xs font-medium';
             const statusClasses = {
@@ -468,6 +476,7 @@ export default {
             };
             return `${baseClasses} ${statusClasses[status]}`;
         },
+
         async fetchEvents() {
             try {
                 const response = await axios.get(process.env.VUE_APP_API_GATEWAY + "/events");
@@ -491,6 +500,7 @@ export default {
                 alert("Failed to load events.");
             }
         },
+
         clearForm() {
             this.eventForm = {
                 id: "",
@@ -509,10 +519,12 @@ export default {
                 note: ""
             };
         },
+
         closeModal() {
             this.showModal = false;
             this.clearForm();
         },
+
         openModal(action, event = null) {
             this.isEdit = action === "edit";
             if (event) {
@@ -528,26 +540,21 @@ export default {
             }
             this.showModal = true;
         },
-        openModal(action, event = null) {
-            this.isEdit = action === "editshifts";
-            if (event) {
-                const startTime = new Date(event.startTime);
-                const endTime = new Date(event.endTime);
-                this.eventForm = {
-                    ...event,
-                    startTime: startTime.toISOString().slice(0, 16),
-                    endTime: endTime.toISOString().slice(0, 16)
-                };
-            } else {
-                this.clearForm();
-            }
-            this.showModal = true;
-        },
+
         async addEvent() {
             try {
                 const newEvent = {
                     EventName: this.eventForm.name,
-                    EventDate: this.eventForm.date,
+                    StartTime: this.eventForm.startTime,
+                    EndTime: this.eventForm.endTime,
+                    Address: this.eventForm.address,
+                    Venue: this.eventForm.venue,
+                    Description: this.eventForm.description,
+                    Money: this.eventForm.money,
+                    Status: this.eventForm.status,
+                    Person: this.eventForm.person,
+                    Note: this.eventForm.note,
+                    PartitionKey: "Event"
                 };
                 await axios.post(process.env.VUE_APP_API_GATEWAY + "/events", newEvent);
                 await this.fetchEvents();
@@ -566,7 +573,15 @@ export default {
                     PartitionKey: "Event",
                     RowKey: this.eventForm.id,
                     EventName: this.eventForm.name,
-                    EventDate: this.eventForm.date,
+                    StartTime: this.eventForm.startTime,
+                    EndTime: this.eventForm.endTime,
+                    Address: this.eventForm.address,
+                    Venue: this.eventForm.venue,
+                    Description: this.eventForm.description,
+                    Money: this.eventForm.money,
+                    Status: this.eventForm.status,
+                    Person: this.eventForm.person,
+                    Note: this.eventForm.note
                 };
                 await axios.put(updateUrl, updatedEvent);
                 await this.fetchEvents();
@@ -591,18 +606,17 @@ export default {
                 }
             }
         },
+
         handleSubmit() {
             if (this.isEdit) {
                 this.updateEvent();
             } else {
                 this.addEvent();
             }
-        },
+        }
     },
     mounted() {
         this.fetchEvents();
     }
 };
 </script>
-
-        

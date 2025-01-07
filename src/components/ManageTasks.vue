@@ -100,16 +100,32 @@ export default {
     methods: {
         async fetchTasks() {
             try {
+                // Log the URL being called
+                console.log("Fetching tasks from URL:", `${process.env.VUE_APP_API_GATEWAY}/duties`);
+
+                // Fetch tasks from the API
                 const response = await axios.get(`${process.env.VUE_APP_API_GATEWAY}/duties`);
-                this.tasks = response.data
-                    .filter(task => task.PartitionKey === "Duty")
-                    .map(task => ({
-                        id: task.RowKey,
-                        name: task.DutyName,
-                        description: task.DutyDescription,
-                        roleId: task.RoleId,
-                    }));
+
+                // Log the response data
+                console.log("Received response:", response);
+
+                // Process the tasks if the response is successful
+                if (response.data && Array.isArray(response.data)) {
+                    this.tasks = response.data
+                        .filter(task => task.PartitionKey === "Duty")
+                        .map(task => ({
+                            id: task.RowKey,
+                            name: task.DutyName,
+                            description: task.DutyDescription,
+                            roleId: task.RoleId,
+                        }));
+                    // Log the filtered and mapped tasks
+                    console.log("Processed tasks:", this.tasks);
+                } else {
+                    console.warn("Invalid response data format:", response.data);
+                }
             } catch (error) {
+                // Log the error if the request fails
                 console.error("Error fetching tasks:", error);
             }
         },
