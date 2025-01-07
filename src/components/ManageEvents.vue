@@ -356,11 +356,7 @@ export default {
 
         async loadEmployees() {
             try {
-<<<<<<< HEAD
                 const response = await axios.get(`${import.meta.env.VITE_APP_API_GATEWAY}/employees`);
-=======
-                const response = await axios.get(`${process.env.VUE_APP_API_URL}/employees`);
->>>>>>> parent of acc8349 (Merge branch 'develop')
                 this.employees = response.data;
             } catch (error) {
                 console.error("Error loading employees:", error);
@@ -418,15 +414,9 @@ export default {
                 };
 
                 if (this.isEditingShift) {
-<<<<<<< HEAD
                     await axios.put(`${import.meta.env.VITE_APP_API_GATEWAY}/shifts/${this.shiftForm.id}`, shiftData);
                 } else {
                     await axios.post(`${import.meta.env.VITE_APP_API_GATEWAY}/shifts`, shiftData);
-=======
-                    await axios.put(`${process.env.VUE_APP_API_URL}/shifts/${this.shiftForm.id}`, shiftData);
-                } else {
-                    await axios.post(`${process.env.VUE_APP_API_URL}/shifts`, shiftData);
->>>>>>> parent of acc8349 (Merge branch 'develop')
                 }
 
                 await this.loadEventShifts(this.currentEventId);
@@ -440,11 +430,7 @@ export default {
         async deleteShift(shiftId) {
             if (confirm("Are you sure you want to delete this shift?")) {
                 try {
-<<<<<<< HEAD
                     await axios.delete(`${import.meta.env.VITE_APP_API_GATEWAY}/shifts/${shiftId}`);
-=======
-                    await axios.delete(`${process.env.VUE_APP_API_URL}/shifts/${shiftId}`);
->>>>>>> parent of acc8349 (Merge branch 'develop')
                     await this.loadEventShifts(this.currentEventId);
                 } catch (error) {
                     console.error("Error deleting shift:", error);
@@ -485,7 +471,6 @@ export default {
         },
         async fetchEvents() {
             try {
-<<<<<<< HEAD
                 const response = await axios.get(import.meta.env.VITE_APP_API_GATEWAY + "/events");
 
                 console.log('API response:', response);
@@ -516,24 +501,6 @@ export default {
                 }));
 
                 console.log('Processed events:', this.events);
-=======
-                const response = await axios.get(process.env.VUE_APP_API_URL + "/events");
-                this.events = response.data
-                    .filter(event => event.PartitionKey === "Event")
-                    .map(event => ({
-                        id: event.RowKey,
-                        name: event.EventName,
-                        startTime: event.StartTime,
-                        endTime: event.EndTime,
-                        address: event.Address,
-                        venue: event.Venue,
-                        description: event.Description,
-                        money: event.Money,
-                        status: event.Status,
-                        person: event.Person,
-                        note: event.Note
-                    }));
->>>>>>> parent of acc8349 (Merge branch 'develop')
             } catch (error) {
                 console.error("Error fetching events:", error);
                 alert("Failed to load events.");
@@ -597,12 +564,8 @@ export default {
                     EventName: this.eventForm.name,
                     EventDate: this.eventForm.date,
                 };
-<<<<<<< HEAD
 
                 await axios.post(import.meta.env.VITE_APP_API_GATEWAY + "/events", newEvent);
-=======
-                await axios.post(process.env.VUE_APP_API_URL + "/events", newEvent);
->>>>>>> parent of acc8349 (Merge branch 'develop')
                 await this.fetchEvents();
                 this.closeModal();
                 alert("Event added successfully!");
@@ -614,11 +577,7 @@ export default {
 
         async updateEvent() {
             try {
-<<<<<<< HEAD
                 const updateUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/events/Event/${this.eventForm.id}`;
-=======
-                const updateUrl = `${process.env.VUE_APP_API_URL}/events/Event/${this.eventForm.id}`;
->>>>>>> parent of acc8349 (Merge branch 'develop')
                 const updatedEvent = {
                     PartitionKey: "Event",
                     RowKey: this.eventForm.id,
@@ -638,11 +597,7 @@ export default {
         async deleteEvent(event) {
             if (confirm("Are you sure you want to delete this event?")) {
                 try {
-<<<<<<< HEAD
                     const deleteUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/events/Event/${event.id}`;
-=======
-                    const deleteUrl = `${process.env.VUE_APP_API_URL}/events/Event/${event.id}`;
->>>>>>> parent of acc8349 (Merge branch 'develop')
                     await axios.delete(deleteUrl);
                     this.events = this.events.filter(e => e.id !== event.id);
                     alert("Event deleted successfully!");
