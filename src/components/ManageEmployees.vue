@@ -210,7 +210,11 @@
         this.loading.employees = true;
         this.error.employees = null;
         try {
+<<<<<<< HEAD
           const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/employees`);
+=======
+          const response = await axios.get(`${import.meta.env.VITE_APP_API_GATEWAY}/employees`);
+>>>>>>> develop
           this.employees = response.data;
         } catch (error) {
           this.error.employees = "Failed to fetch employees.";
@@ -256,7 +260,11 @@
       },
       async addEmployee(employeeData) {
         try {
+<<<<<<< HEAD
           const response = await axios.post(`${process.env.VUE_APP_API_BASE_URL}/employees`, employeeData);
+=======
+          const response = await axios.post(`${import.meta.env.VITE_APP_API_GATEWAY}/employees`, employeeData);
+>>>>>>> develop
           this.employees.push(response.data);
           alert("Employee added successfully.");
         } catch (error) {
@@ -266,7 +274,11 @@
       },
       async editEmployee(id, employeeData) {
         try {
+<<<<<<< HEAD
           const response = await axios.put(`${process.env.VUE_APP_API_BASE_URL}/employees/${id}`, employeeData);
+=======
+          const response = await axios.put(`${import.meta.env.VITE_APP_API_GATEWAY}/employees/${id}`, employeeData);
+>>>>>>> develop
           const index = this.employees.findIndex(employee => employee.employeeId === id);
           if (index !== -1) this.employees.splice(index, 1, response.data);
           alert("Employee updated successfully.");
@@ -277,7 +289,11 @@
       },
       async deleteEmployee(id) {
         try {
+<<<<<<< HEAD
           await axios.delete(`${process.env.VUE_APP_API_BASE_URL}/employees/${id}`);
+=======
+          await axios.delete(`${import.meta.env.VITE_APP_API_GATEWAY}/employees/${id}`);
+>>>>>>> develop
           this.employees = this.employees.filter(employee => employee.employeeId !== id);
           alert("Employee deleted successfully.");
         } catch (error) {

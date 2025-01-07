@@ -100,23 +100,38 @@ export default {
     methods: {
         async fetchTasks() {
             try {
-                const response = await axios.get("http://localhost:3007/duties");
-                this.tasks = response.data
-                    .filter(task => task.PartitionKey === "Duty")
-                    .map(task => ({
-                        id: task.RowKey,
-                        name: task.DutyName,
-                        description: task.DutyDescription,
-                        roleId: task.RoleId,
-                    }));
+                // Log the URL being called
+                console.log("Fetching tasks from URL:", `${import.meta.env.VITE_APP_API_GATEWAY}/duties`);
+
+                // Fetch tasks from the API
+                const response = await axios.get(`${import.meta.env.VITE_APP_API_GATEWAY}/duties`);
+
+                // Log the response data
+                console.log("Received response:", response);
+
+                // Process the tasks if the response is successful
+                if (response.data && Array.isArray(response.data)) {
+                    this.tasks = response.data
+                        .filter(task => task.PartitionKey === "Duty")
+                        .map(task => ({
+                            id: task.RowKey,
+                            name: task.DutyName,
+                            description: task.DutyDescription,
+                            roleId: task.RoleId,
+                        }));
+                    // Log the filtered and mapped tasks
+                    console.log("Processed tasks:", this.tasks);
+                } else {
+                    console.warn("Invalid response data format:", response.data);
+                }
             } catch (error) {
+                // Log the error if the request fails
                 console.error("Error fetching tasks:", error);
             }
         },
         async loadTasks() {
             try {
-                const response = await axios.get("http://localhost:3007/duties");
-                // Set the tasks data with the response
+                const response = await axios.get(`${process.env.VUE_APP_API_GATEWAY}/duties`);
                 this.tasks = response.data.map(task => ({
                     id: task.RowKey, // RowKey is the ID of the task
                     name: task.DutyName,
@@ -136,11 +151,7 @@ export default {
                     DutyName: this.taskForm.name,
                     DutyDescription: this.taskForm.description,
                 };
-
-                // Make the POST request to the backend to add the new task
-                await axios.post("http://localhost:3007/duties", newTask);
-
-                // Reload the task list by calling the method to fetch tasks
+                await axios.post(`${process.env.VUE_APP_API_GATEWAY}/duties`, newTask);
                 this.loadTasks();
 
                 // Close the modal and show success message
@@ -155,7 +166,7 @@ export default {
 
         async updateTask() {
             try {
-                const updateUrl = `http://localhost:3007/duties/Duty/${this.taskForm.id}`;
+                const updateUrl = `${process.env.VUE_APP_API_GATEWAY}/duties/Duty/${this.taskForm.id}`;
                 const updatedTask = {
                     PartitionKey: "Duty",
                     RowKey: this.taskForm.id,
@@ -182,7 +193,7 @@ export default {
         },
         async deleteTask(task) {
             try {
-                const deleteUrl = `http://localhost:3007/duties/Duty/${task.id}`;
+                const deleteUrl = `${process.env.VUE_APP_API_GATEWAY}/duties/Duty/${task.id}`;
                 await axios.delete(deleteUrl);
                 this.tasks = this.tasks.filter(t => t.id !== task.id);
                 alert("Task deleted successfully!");
