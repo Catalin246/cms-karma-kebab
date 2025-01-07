@@ -101,10 +101,10 @@ export default {
         async fetchTasks() {
             try {
                 // Log the URL being called
-                console.log("Fetching tasks from URL:", `${process.env.VUE_APP_API_GATEWAY}/duties`);
+                console.log("Fetching tasks from URL:", `${import.meta.env.VITE_APP_API_GATEWAY}/duties`);
 
                 // Fetch tasks from the API
-                const response = await axios.get(`${process.env.VUE_APP_API_GATEWAY}/duties`);
+                const response = await axios.get(`${import.meta.env.VITE_APP_API_GATEWAY}/duties`);
 
                 // Log the response data
                 console.log("Received response:", response);
@@ -131,7 +131,7 @@ export default {
         },
         async loadTasks() {
             try {
-                const response = await axios.get(`${process.env.VUE_APP_API_GATEWAY}/duties`);
+                const response = await axios.get(`${import.meta.env.VITE_APP_API_GATEWAY}/duties`);
                 this.tasks = response.data.map(task => ({
                     id: task.RowKey, // RowKey is the ID of the task
                     name: task.DutyName,
@@ -151,7 +151,7 @@ export default {
                     DutyName: this.taskForm.name,
                     DutyDescription: this.taskForm.description,
                 };
-                await axios.post(`${process.env.VUE_APP_API_GATEWAY}/duties`, newTask);
+                await axios.post(`${import.meta.env.VITE_APP_API_GATEWAY}/duties`, newTask);
                 this.loadTasks();
                 this.closeModal();
                 alert("Task added successfully!");
@@ -163,7 +163,7 @@ export default {
 
         async updateTask() {
             try {
-                const updateUrl = `${process.env.VUE_APP_API_GATEWAY}/duties/Duty/${this.taskForm.id}`;
+                const updateUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/duties/Duty/${this.taskForm.id}`;
                 const updatedTask = {
                     PartitionKey: "Duty",
                     RowKey: this.taskForm.id,
@@ -190,7 +190,7 @@ export default {
         },
         async deleteTask(task) {
             try {
-                const deleteUrl = `${process.env.VUE_APP_API_GATEWAY}/duties/Duty/${task.id}`;
+                const deleteUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/duties/Duty/${task.id}`;
                 await axios.delete(deleteUrl);
                 this.tasks = this.tasks.filter(t => t.id !== task.id);
                 alert("Task deleted successfully!");

@@ -113,17 +113,18 @@
                                 <label class="inline-flex items-center mr-4">
                                     <input type="radio" v-model="eventForm.status" value="PENDING"
                                         class="form-radio" />
-                                    <span class="ml-2">Pending</span>
+                                    <span class="ml-2 text-black">Pending</span>
                                 </label>
                                 <label class="inline-flex items-center mr-4">
                                     <input type="radio" v-model="eventForm.status" value="CONFIRMED"
                                         class="form-radio" />
-                                    <span class="ml-2">Confirmed</span>
+                                    <span class="ml-2 text-black">Confirmed</span>
                                 </label>
                                 <label class="inline-flex items-center">
                                     <input type="radio" v-model="eventForm.status" value="CANCELLED"
                                         class="form-radio" />
-                                    <span class="ml-2">Cancelled</span>
+                                    <span class="ml-2 text-black">Cancelled</span>
+
                                 </label>
                             </div>
                         </div>
@@ -336,20 +337,20 @@ export default {
     },
     computed: {
         filteredEvents() {
-            const searchLower = this.searchEvent.toLowerCase();
-            return this.events.filter(event =>
-                event.name.toLowerCase().includes(searchLower) ||
-                event.venue.toLowerCase().includes(searchLower) ||
-                event.person.name.toLowerCase().includes(searchLower)
-            );
-        }
+        const searchLower = this.searchEvent.toLowerCase();
+        return this.events.filter(event =>
+            event.name.toLowerCase().includes(searchLower) ||
+            event.venue.toLowerCase().includes(searchLower) ||
+            event.person.name.toLowerCase().includes(searchLower)
+        );
+    }
     },
     methods: {
         async loadEventShifts(eventId) {
             try {
                 const shiftIds = this.events.find(e => e.id === eventId)?.shiftIds || [];
                 const shiftPromises = shiftIds.map(id => 
-                    axios.get(`${process.env.VUE_APP_API_URL}/shifts/${id}`)
+                    axios.get(`${import.meta.env.VITE_APP_API_URL}/shifts/${id}`)
                 );
                 const responses = await Promise.all(shiftPromises);
                 this.eventShifts = responses.map(r => r.data);
@@ -362,7 +363,7 @@ export default {
 
         async loadEmployees() {
             try {
-                const response = await axios.get(`${process.env.VUE_APP_API_GATEWAY}/employees`);
+                const response = await axios.get(`${import.meta.env.VITE_APP_API_GATEWAY}/employees`);
                 this.employees = response.data;
             } catch (error) {
                 console.error("Error loading employees:", error);
@@ -420,9 +421,9 @@ export default {
                 };
 
                 if (this.isEditingShift) {
-                    await axios.put(`${process.env.VUE_APP_API_GATEWAY}/shifts/${this.shiftForm.id}`, shiftData);
+                    await axios.put(`${import.meta.env.VITE_APP_API_GATEWAY}/shifts/${this.shiftForm.id}`, shiftData);
                 } else {
-                    await axios.post(`${process.env.VUE_APP_API_GATEWAY}/shifts`, shiftData);
+                    await axios.post(`${import.meta.env.VITE_APP_API_GATEWAY}/shifts`, shiftData);
                 }
 
                 await this.loadEventShifts(this.currentEventId);
@@ -436,7 +437,7 @@ export default {
         async deleteShift(shiftId) {
             if (confirm("Are you sure you want to delete this shift?")) {
                 try {
-                    await axios.delete(`${process.env.VUE_APP_API_GATEWAY}/shifts/${shiftId}`);
+                    await axios.delete(`${import.meta.env.VITE_APP_API_GATEWAY}/shifts/${shiftId}`);
                     await this.loadEventShifts(this.currentEventId);
                 } catch (error) {
                     console.error("Error deleting shift:", error);
@@ -479,25 +480,44 @@ export default {
 
         async fetchEvents() {
             try {
-                const response = await axios.get(process.env.VUE_APP_API_GATEWAY + "/events");
-                this.events = response.data
-                    .filter(event => event.PartitionKey === "Event")
-                    .map(event => ({
-                        id: event.RowKey,
-                        name: event.EventName,
-                        startTime: event.StartTime,
-                        endTime: event.EndTime,
-                        address: event.Address,
-                        venue: event.Venue,
-                        description: event.Description,
-                        money: event.Money,
-                        status: event.Status,
-                        person: event.Person,
-                        note: event.Note
-                    }));
+                const response = await axios.get(import.meta.env.VITE_APP_API_GATEWAY + "/events");
+
+                console.log('API response:', response);
+
+                // Check if response has the expected structure
+                if (!response.data || !response.data.data || !Array.isArray(response.data.data)) {
+                    throw new Error("Unexpected response structure");
+                }
+
+                // Transform response to fit the app's data structure
+                this.events = response.data.data.map(event => ({
+                    id: event.rowKey || "",
+                    name: event.eventName || event.description || "", // Fallback to description if eventName isn't present
+                    startTime: event.startTime || "",
+                    endTime: event.endTime || "",
+                    address: event.address || "",
+                    venue: event.venue || "",
+                    description: event.description || "",
+                    money: event.money || 0,
+                    status: event.status || "PENDING",
+                    person: {
+                        name: `${event.person?.firstName || ""} ${event.person?.lastName || ""}`.trim(),
+                        email: event.person?.email || ""
+                    },
+                    note: event.note || "",
+                    shiftIDs: event.shiftIDs || [],
+                    roleIDs: event.roleIDs || null
+                }));
+
+                console.log('Processed events:', this.events);
             } catch (error) {
                 console.error("Error fetching events:", error);
-                alert("Failed to load events.");
+                if (error.response) {
+                    console.error("Response data:", error.response.data);
+                    console.error("Response status:", error.response.status);
+                }
+                this.events = [];
+                throw new Error("Failed to load events: " + (error.message || "Unknown error"));
             }
         },
 
@@ -544,6 +564,8 @@ export default {
         async addEvent() {
             try {
                 const newEvent = {
+                    PartitionKey: "Event",
+                    RowKey: null, // Let the server generate this if needed
                     EventName: this.eventForm.name,
                     StartTime: this.eventForm.startTime,
                     EndTime: this.eventForm.endTime,
@@ -552,11 +574,15 @@ export default {
                     Description: this.eventForm.description,
                     Money: this.eventForm.money,
                     Status: this.eventForm.status,
-                    Person: this.eventForm.person,
-                    Note: this.eventForm.note,
-                    PartitionKey: "Event"
+                    Person: {
+                        firstName: this.eventForm.person.name.split(" ")[0] || "",
+                        lastName: this.eventForm.person.name.split(" ")[1] || "",
+                        email: this.eventForm.person.email || ""
+                    },
+                    Note: this.eventForm.note
                 };
-                await axios.post(process.env.VUE_APP_API_GATEWAY + "/events", newEvent);
+
+                await axios.post(import.meta.env.VITE_APP_API_GATEWAY + "/events", newEvent);
                 await this.fetchEvents();
                 this.closeModal();
                 alert("Event added successfully!");
@@ -566,9 +592,10 @@ export default {
             }
         },
 
+
         async updateEvent() {
             try {
-                const updateUrl = `${process.env.VUE_APP_API_GATEWAY}/events/Event/${this.eventForm.id}`;
+                const updateUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/events/Event/${this.eventForm.id}`;
                 const updatedEvent = {
                     PartitionKey: "Event",
                     RowKey: this.eventForm.id,
@@ -596,7 +623,7 @@ export default {
         async deleteEvent(event) {
             if (confirm("Are you sure you want to delete this event?")) {
                 try {
-                    const deleteUrl = `${process.env.VUE_APP_API_GATEWAY}/events/Event/${event.id}`;
+                    const deleteUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/events/Event/${event.id}`;
                     await axios.delete(deleteUrl);
                     this.events = this.events.filter(e => e.id !== event.id);
                     alert("Event deleted successfully!");

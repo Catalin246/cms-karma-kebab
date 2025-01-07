@@ -21,10 +21,10 @@
         <table class="w-full">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-4 py-2 text-left text-black border">ID</th>
               <th class="px-4 py-2 text-left text-black border">Name</th>
-              <th class="px-4 py-2 text-left text-black border">Status</th>
-              <th class="px-4 py-2 text-left text-black border">Last Maintenance</th>
+              <th class="px-4 py-2 text-left text-black border">Number Plate</th>
+              <th class="px-4 py-2 text-left text-black border">Description</th>
+              <th class="px-4 py-2 text-left text-black border">Note</th>
               <th class="px-4 py-2 text-left text-black border">Actions</th>
             </tr>
           </thead>
@@ -34,10 +34,10 @@
               :key="truck.id"
               class="border-t"
             >
-              <td class="px-4 py-2 text-black border">{{ truck.id }}</td>
               <td class="px-4 py-2 text-black border">{{ truck.name }}</td>
-              <td class="px-4 py-2 text-black border">{{ truck.status }}</td>
-              <td class="px-4 py-2 text-black border">{{ truck.lastMaintenance }}</td>
+              <td class="px-4 py-2 text-black border">{{ truck.numberPlate }}</td>
+              <td class="px-4 py-2 text-black border">{{ truck.description }}</td>
+              <td class="px-4 py-2 text-black border">{{ truck.note }}</td>
               <td class="px-4 py-2 text-black border">
                 <button
                   class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
@@ -72,28 +72,31 @@
               />
             </div>
             <div class="mb-4">
-              <label for="truckStatus" class="block text-gray-700">Truck Status</label>
-              <select
-                id="truckStatus"
-                v-model="truckForm.status"
-                class="w-full p-2 border rounded bg-white text-gray-900"
-                required
-              >
-                <option value="" disabled>Select Status</option>
-                <option value="Available">Available</option>
-                <option value="In Use">In Use</option>
-                <option value="Maintenance">Maintenance</option>
-              </select>
-            </div>
-            <div class="mb-4">
-              <label for="lastMaintenance" class="block text-gray-700">Last Maintenance Date</label>
+              <label for="truckNumberPlate" class="block text-gray-700">Number Plate</label>
               <input
-                id="lastMaintenance"
-                v-model="truckForm.lastMaintenance"
+                id="truckNumberPlate"
+                v-model="truckForm.numberPlate"
                 class="w-full p-2 border rounded bg-white text-gray-900"
-                type="date"
+                type="text"
                 required
               />
+            </div>
+            <div class="mb-4">
+              <label for="truckDescription" class="block text-gray-700">Description</label>
+              <textarea
+                id="truckDescription"
+                v-model="truckForm.description"
+                class="w-full p-2 border rounded bg-white text-gray-900"
+                required
+              ></textarea>
+            </div>
+            <div class="mb-4">
+              <label for="truckNote" class="block text-gray-700">Note</label>
+              <textarea
+                id="truckNote"
+                v-model="truckForm.note"
+                class="w-full p-2 border rounded bg-white text-gray-900"
+              ></textarea>
             </div>
             <div class="flex justify-between">
               <button
@@ -129,8 +132,9 @@
         truckForm: {
           id: null,
           name: "",
-          status: "",
-          lastMaintenance: "",
+          numberPlate: "",
+          description: "",
+          note: "",
         },
         loading: {
           trucks: false,
@@ -152,7 +156,7 @@
         this.loading.trucks = true;
         this.error.trucks = null;
         try {
-          const response = await axios.get(`${process.env.VUE_APP_API_GATEWAY}/trucks`);
+          const response = await axios.get(`${import.meta.env.VITE_APP_API_GATEWAY}/trucks`);
           this.trucks = response.data;
         } catch (error) {
           this.error.trucks = "Failed to fetch trucks.";
@@ -166,8 +170,9 @@
         this.truckForm = {
           id: null,
           name: "",
-          status: "",
-          lastMaintenance: "",
+          numberPlate: "",
+          description: "",
+          note: "",
         };
         this.showModal = true;
       },
@@ -189,7 +194,7 @@
       },
       async addTruck(truckData) {
         try {
-          const response = await axios.post(`${process.env.VUE_APP_API_GATEWAY}/trucks`, truckData);
+          const response = await axios.post(`${import.meta.env.VITE_APP_API_GATEWAY}/trucks`, truckData);
           this.trucks.push(response.data);
           alert("Truck added successfully.");
         } catch (error) {
@@ -199,7 +204,7 @@
       },
       async editTruck(id, truckData) {
         try {
-          const response = await axios.put(`${process.env.VUE_APP_API_GATEWAY}/trucks/${id}`, truckData);
+          const response = await axios.put(`${import.meta.env.VITE_APP_API_GATEWAY}/trucks/${id}`, truckData);
           const index = this.trucks.findIndex(truck => truck.id === id);
           if (index !== -1) this.trucks.splice(index, 1, response.data);
           alert("Truck updated successfully.");
@@ -210,7 +215,7 @@
       },
       async deleteTruck(id) {
         try {
-          await axios.delete(`${process.env.VUE_APP_API_GATEWAY}/trucks/${id}`);
+          await axios.delete(`${import.meta.env.VITE_APP_API_GATEWAY}/trucks/${id}`);
           this.trucks = this.trucks.filter(truck => truck.id !== id);
           alert("Truck deleted successfully.");
         } catch (error) {
@@ -224,3 +229,4 @@
     },
   };
   </script>
+  
