@@ -156,11 +156,7 @@
         this.loading.trucks = true;
         this.error.trucks = null;
         try {
-<<<<<<< HEAD
-          const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/trucks`);
-=======
           const response = await axios.get(`${import.meta.env.VITE_APP_API_GATEWAY}/trucks`);
->>>>>>> develop
           this.trucks = response.data;
         } catch (error) {
           this.error.trucks = "Failed to fetch trucks.";
@@ -198,11 +194,7 @@
       },
       async addTruck(truckData) {
         try {
-<<<<<<< HEAD
-          const response = await axios.post(`${process.env.VUE_APP_API_BASE_URL}/trucks`, truckData);
-=======
           const response = await axios.post(`${import.meta.env.VITE_APP_API_GATEWAY}/trucks`, truckData);
->>>>>>> develop
           this.trucks.push(response.data);
           alert("Truck added successfully.");
         } catch (error) {
@@ -212,11 +204,7 @@
       },
       async editTruck(id, truckData) {
         try {
-<<<<<<< HEAD
-          const response = await axios.put(`${process.env.VUE_APP_API_BASE_URL}/trucks/${id}`, truckData);
-=======
           const response = await axios.put(`${import.meta.env.VITE_APP_API_GATEWAY}/trucks/${id}`, truckData);
->>>>>>> develop
           const index = this.trucks.findIndex(truck => truck.id === id);
           if (index !== -1) this.trucks.splice(index, 1, response.data);
           alert("Truck updated successfully.");
@@ -227,11 +215,7 @@
       },
       async deleteTruck(id) {
         try {
-<<<<<<< HEAD
-          await axios.delete(`${process.env.VUE_APP_API_BASE_URL}/trucks/${id}`);
-=======
           await axios.delete(`${import.meta.env.VITE_APP_API_GATEWAY}/trucks/${id}`);
->>>>>>> develop
           this.trucks = this.trucks.filter(truck => truck.id !== id);
           alert("Truck deleted successfully.");
         } catch (error) {

@@ -377,11 +377,7 @@ export default {
 
         async loadEmployees() {
             try {
-<<<<<<< HEAD
-                const response = await axios.get(`${process.env.VUE_APP_API_URL}/employees`);
-=======
                 const response = await axios.get(`${import.meta.env.VITE_APP_API_GATEWAY}/employees`);
->>>>>>> develop
                 this.employees = response.data;
             } catch (error) {
                 console.error("Error loading employees:", error);
@@ -439,15 +435,9 @@ export default {
                 };
 
                 if (this.isEditingShift) {
-<<<<<<< HEAD
-                    await axios.put(`${process.env.VUE_APP_API_URL}/shifts/${this.shiftForm.id}`, shiftData);
-                } else {
-                    await axios.post(`${process.env.VUE_APP_API_URL}/shifts`, shiftData);
-=======
                     await axios.put(`${import.meta.env.VITE_APP_API_GATEWAY}/shifts/${this.shiftForm.id}`, shiftData);
                 } else {
                     await axios.post(`${import.meta.env.VITE_APP_API_GATEWAY}/shifts`, shiftData);
->>>>>>> develop
                 }
 
                 await this.loadEventShifts(this.currentEventId);
@@ -461,11 +451,7 @@ export default {
         async deleteShift(shiftId) {
             if (confirm("Are you sure you want to delete this shift?")) {
                 try {
-<<<<<<< HEAD
-                    await axios.delete(`${process.env.VUE_APP_API_URL}/shifts/${shiftId}`);
-=======
                     await axios.delete(`${import.meta.env.VITE_APP_API_GATEWAY}/shifts/${shiftId}`);
->>>>>>> develop
                     await this.loadEventShifts(this.currentEventId);
                 } catch (error) {
                     console.error("Error deleting shift:", error);
@@ -509,24 +495,6 @@ export default {
 
         async fetchEvents() {
             try {
-<<<<<<< HEAD
-                const response = await axios.get(process.env.VUE_APP_API_URL + "/events");
-                this.events = response.data
-                    .filter(event => event.PartitionKey === "Event")
-                    .map(event => ({
-                        id: event.RowKey,
-                        name: event.EventName,
-                        startTime: event.StartTime,
-                        endTime: event.EndTime,
-                        address: event.Address,
-                        venue: event.Venue,
-                        description: event.Description,
-                        money: event.Money,
-                        status: event.Status,
-                        person: event.Person,
-                        note: event.Note
-                    }));
-=======
                 const response = await axios.get(import.meta.env.VITE_APP_API_GATEWAY + "/events");
 
                 console.log('API response:', response);
@@ -557,7 +525,6 @@ export default {
                 }));
 
                 console.log('Processed events:', this.events);
->>>>>>> develop
             } catch (error) {
                 console.error("Error fetching events:", error);
                 if (error.response) {
@@ -629,12 +596,8 @@ export default {
                     },
                     Note: this.eventForm.note
                 };
-<<<<<<< HEAD
-                await axios.post(process.env.VUE_APP_API_URL + "/events", newEvent);
-=======
 
                 await axios.post(import.meta.env.VITE_APP_API_GATEWAY + "/events", newEvent);
->>>>>>> develop
                 await this.fetchEvents();
                 this.closeModal();
                 alert("Event added successfully!");
@@ -646,11 +609,7 @@ export default {
 
         async updateEvent() {
             try {
-<<<<<<< HEAD
-                const updateUrl = `${process.env.VUE_APP_API_URL}/events/Event/${this.eventForm.id}`;
-=======
                 const updateUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/events/Event/${this.eventForm.id}`;
->>>>>>> develop
                 const updatedEvent = {
                     PartitionKey: "Event",
                     RowKey: this.eventForm.id,
@@ -678,11 +637,7 @@ export default {
         async deleteEvent(event) {
             if (confirm("Are you sure you want to delete this event?")) {
                 try {
-<<<<<<< HEAD
-                    const deleteUrl = `${process.env.VUE_APP_API_URL}/events/Event/${event.id}`;
-=======
                     const deleteUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/events/Event/${event.id}`;
->>>>>>> develop
                     await axios.delete(deleteUrl);
                     this.events = this.events.filter(e => e.id !== event.id);
                     alert("Event deleted successfully!");
