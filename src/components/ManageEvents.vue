@@ -20,6 +20,7 @@
                         <th class="px-4 py-2 text-left text-black border">Status</th>
                         <th class="px-4 py-2 text-left text-black border">Contact</th>
                         <th class="px-4 py-2 text-left text-black border">Cost</th>
+                        <th class="px-4 py-2 text-left text-black border">People Working</th>
                         <th class="px-4 py-2 text-left text-black border">Actions</th>
                     </tr>
                 </thead>
@@ -49,9 +50,18 @@
                         </td>
                         <td class="px-4 py-2 text-black border">${{ event.money.toFixed(2) }}</td>
                         <td class="px-4 py-2 text-black border">
+                            <!-- Display number of people working on the event -->
+                            <div>{{ event.shiftIDs ? event.shiftIDs.length : 0 }} people</div>
+                        </td>
+                        <td class="px-4 py-2 text-black border">
+                            <!-- Edit shift button -->
+                            <button @click="openShiftsModal(event)"
+                                class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 mr-2">
+                                Edit Shifts
+                            </button>
                             <button @click="openModal('edit', event)"
                                 class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2">
-                                Edit
+                                Edit Event
                             </button>
                             <button @click="deleteEvent(event)"
                                 class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
@@ -61,108 +71,6 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
-
-        <!-- Event Modal Form -->
-        <div v-if="showModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-10">
-            <div class="bg-white p-6 rounded-lg w-2/3">
-                <h3 class="text-xl text-violet-700 font-bold mb-4">{{ isEdit ? 'Edit Event' : 'Add Event' }}</h3>
-                <form @submit.prevent="handleSubmit" class="space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <!-- Event Form Fields -->
-                        <div>
-                            <label for="eventName" class="block text-gray-700">Event Name*</label>
-                            <input id="eventName" v-model="eventForm.name"
-                                class="w-full p-2 border rounded bg-white text-gray-900" type="text" required />
-                        </div>
-                        
-                        <div>
-                            <label for="venue" class="block text-gray-700">Venue Name*</label>
-                            <input id="venue" v-model="eventForm.venue"
-                                class="w-full p-2 border rounded bg-white text-gray-900" type="text" required />
-                        </div>
-
-                        <div>
-                            <label for="startTime" class="block text-gray-700">Start Time*</label>
-                            <input id="startTime" v-model="eventForm.startTime"
-                                class="w-full p-2 border rounded bg-white text-gray-900" type="datetime-local" required />
-                        </div>
-
-                        <div>
-                            <label for="endTime" class="block text-gray-700">End Time*</label>
-                            <input id="endTime" v-model="eventForm.endTime"
-                                class="w-full p-2 border rounded bg-white text-gray-900" type="datetime-local" required />
-                        </div>
-
-                        <div>
-                            <label for="address" class="block text-gray-700">Address*</label>
-                            <input id="address" v-model="eventForm.address"
-                                class="w-full p-2 border rounded bg-white text-gray-900" type="text" required />
-                        </div>
-
-                        <div>
-                            <label for="money" class="block text-gray-700">Cost ($)</label>
-                            <input id="money" v-model="eventForm.money"
-                                class="w-full p-2 border rounded bg-white text-gray-900" 
-                                type="number" step="0.01" min="0" />
-                        </div>
-
-                        <div>
-                            <label class="block text-gray-700">Status</label>
-                            <div class="mt-2">
-                                <label class="inline-flex items-center mr-4">
-                                    <input type="radio" v-model="eventForm.status" value="PENDING"
-                                        class="form-radio" />
-                                    <span class="ml-2 text-black">Pending</span>
-                                </label>
-                                <label class="inline-flex items-center mr-4">
-                                    <input type="radio" v-model="eventForm.status" value="CONFIRMED"
-                                        class="form-radio" />
-                                    <span class="ml-2 text-black">Confirmed</span>
-                                </label>
-                                <label class="inline-flex items-center">
-                                    <input type="radio" v-model="eventForm.status" value="CANCELLED"
-                                        class="form-radio" />
-                                    <span class="ml-2 text-black">Cancelled</span>
-
-                                </label>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label for="person" class="block text-gray-700">Contact Person</label>
-                            <div class="grid grid-cols-2 gap-2">
-                                <input placeholder="Name" v-model="eventForm.person.name"
-                                    class="p-2 border rounded bg-white text-gray-900" type="text" />
-                                <input placeholder="Phone" v-model="eventForm.person.phone"
-                                    class="p-2 border rounded bg-white text-gray-900" type="tel" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label for="description" class="block text-gray-700">Description</label>
-                        <textarea id="description" v-model="eventForm.description"
-                            class="w-full p-2 border rounded bg-white text-gray-900" rows="3"></textarea>
-                    </div>
-
-                    <div>
-                        <label for="note" class="block text-gray-700">Additional Notes</label>
-                        <textarea id="note" v-model="eventForm.note"
-                            class="w-full p-2 border rounded bg-white text-gray-900" rows="4"></textarea>
-                    </div>
-
-                    <div class="flex justify-end space-x-4">
-                        <button @click="closeModal" type="button"
-                            class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
-                            Cancel
-                        </button>
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                            {{ isEdit ? 'Update Event' : 'Add Event' }}
-                        </button>
-                    </div>
-                </form>
-            </div>
         </div>
 
         <!-- Shifts Management Modal -->
@@ -184,14 +92,14 @@
                 <table class="w-full border-collapse">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-2 text-left border">Start Time</th>
-                            <th class="px-4 py-2 text-left border">End Time</th>
-                            <th class="px-4 py-2 text-left border">Employee</th>
-                            <th class="px-4 py-2 text-left border">Type</th>
-                            <th class="px-4 py-2 text-left border">Status</th>
-                            <th class="px-4 py-2 text-left border">Clock In/Out</th>
-                            <th class="px-4 py-2 text-left border">Hours</th>
-                            <th class="px-4 py-2 text-left border">Actions</th>
+                            <th class="px-4 py-2 text-black text-left border">Start Time</th>
+                            <th class="px-4 py-2 text-black text-left border">End Time</th>
+                            <th class="px-4 py-2 text-black text-left border">Employee</th>
+                            <th class="px-4 py-2 text-black text-left border">Type</th>
+                            <th class="px-4 py-2 text-black text-left border">Status</th>
+                            <th class="px-4 py-2 text-black text-left border">Clock In/Out</th>
+                            <th class="px-4 py-2 text-black text-left border">Hours</th>
+                            <th class="px-4 py-2 text-black text-left border">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -257,18 +165,16 @@
                             <label class="block text-gray-700">Shift Type</label>
                             <select v-model="shiftForm.shiftType"
                                 class="w-full p-2 border rounded" required>
-                                <option value="REGULAR">Regular</option>
-                                <option value="OVERTIME">Overtime</option>
-                                <option value="EMERGENCY">Emergency</option>
+                                <option value="NORMAL">Normal</option>
+                                <option value="STANDBY">Standby</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-gray-700">Status</label>
                             <select v-model="shiftForm.status"
                                 class="w-full p-2 border rounded" required>
-                                <option value="SCHEDULED">Scheduled</option>
-                                <option value="IN_PROGRESS">In Progress</option>
-                                <option value="COMPLETED">Completed</option>
+                                <option value="UNCONFIRMED">Unconfirmed</option>
+                                <option value="CONFIRMED">Confirmed</option>
                                 <option value="CANCELLED">Cancelled</option>
                             </select>
                         </div>
@@ -288,6 +194,7 @@
         </div>
     </div>
 </template>
+
 
 <script>
 import axios from "axios";
@@ -327,8 +234,8 @@ export default {
                 startTime: "",
                 endTime: "",
                 employeeId: "",
-                shiftType: "REGULAR",
-                status: "SCHEDULED",
+                shiftType: "NORMAL",
+                status: "UNCONFIRMED",
                 clockInTime: null,
                 clockOutTime: null,
                 shiftHours: 0
@@ -337,13 +244,13 @@ export default {
     },
     computed: {
         filteredEvents() {
-        const searchLower = this.searchEvent.toLowerCase();
-        return this.events.filter(event =>
-            event.name.toLowerCase().includes(searchLower) ||
-            event.venue.toLowerCase().includes(searchLower) ||
-            event.person.name.toLowerCase().includes(searchLower)
-        );
-    }
+            const searchLower = this.searchEvent.toLowerCase();
+            return this.events.filter(event =>
+                event.name.toLowerCase().includes(searchLower) ||
+                event.venue.toLowerCase().includes(searchLower) ||
+                event.person.name.toLowerCase().includes(searchLower)
+            );
+        }
     },
     methods: {
         async loadEventShifts(eventId) {
@@ -505,8 +412,8 @@ export default {
                         email: event.person?.email || ""
                     },
                     note: event.note || "",
-                    shiftIDs: event.shiftIDs || [],
-                    roleIDs: event.roleIDs || null
+                    shiftIds: event.shiftIds || [],
+                    roleIds: event.roleIds || null
                 }));
 
                 console.log('Processed events:', this.events);
@@ -591,7 +498,6 @@ export default {
                 alert("Failed to add the event.");
             }
         },
-
 
         async updateEvent() {
             try {
