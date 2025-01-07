@@ -1,5 +1,5 @@
 <template>
-        <div class="manage-events">
+    <div class="manage-events">
         <h2 class="text-2xl font-bold text-black">Manage Events</h2>
         <div class="flex justify-between mb-4">
             <button @click="openModal('add')" class="bg-green-500 text-white px-4 py-2 mt-3 rounded hover:bg-green-600">
@@ -62,6 +62,7 @@
         <!-- Updated Modal Form -->
         <div v-if="showModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-10">
             <div class="bg-white p-6 rounded-lg w-2/3">
+            <div class="bg-white p-6 rounded-lg w-2/3">
                 <h3 class="text-xl text-violet-700 font-bold mb-4">{{ isEdit ? 'Edit Event' : 'Add Event' }}</h3>
                 <form @submit.prevent="handleSubmit" class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
@@ -119,6 +120,8 @@
                                     <input type="radio" v-model="eventForm.status" value="CANCELLED"
                                         class="form-radio" />
                                     <span class="ml-2">Cancelled</span>
+                                    <span class="ml-2 text-black">Cancelled</span>
+
                                 </label>
                             </div>
                         </div>
@@ -277,6 +280,7 @@
                     </button>
                 </div>
             </form>
+        </div>
         </div>
         </div>
     </div>
