@@ -68,10 +68,17 @@
           </div>
         </div>
 
-        <!-- Truck View --> 
+        <!-- Task Assignments View -->
+        <div v-if="currentView === 'tasks-assignments'" class="space-y-6">
+          <div class="">
+            <ManageTaskAssignments />
+          </div>
+        </div>
+
+        <!-- Truck View -->
         <div v-if="currentView === 'trucks'" class="space-y-6">
           <div class="">
-            <ManageTrucks /> 
+            <ManageTrucks />
           </div>
         </div>
 
@@ -119,10 +126,7 @@
         <h3 class="text-xl font-bold mb-4 text-black">
           Manage Shifts - {{ currentEvent?.name }}
         </h3>
-        <button
-          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mb-4"
-          @click="addShift"
-        >
+        <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mb-4" @click="addShift">
           Add Shift
         </button>
         <table class="w-full">
@@ -181,7 +185,7 @@ import ManageTasks from './components/ManageTasks.vue';
 import ManageEvents from './components/ManageEvents.vue';
 import ManageTrucks from './components/ManageTrucks.vue';
 import ManageEmployees from './components/ManageEmployees.vue';
-
+import ManageTaskAssignments from './components/ManageTaskAssignments.vue';
 
 
 // Configure axios defaults and interceptors
@@ -275,6 +279,7 @@ export default {
     ManageEvents,
     ManageTrucks,
     ManageEmployees,
+    ManageTaskAssignments,
   },
   data() {
     return {
@@ -285,6 +290,7 @@ export default {
         { name: 'Manage Employees', view: 'employees', icon: 'users' },
         { name: 'Manage Trucks', view: 'trucks', icon: 'truck' },
         { name: 'Manage Tasks', view: 'tasks' },
+        { name: 'Manage Task Assignments', view: 'tasks-assignments' },
         { name: 'Calendar', view: 'calendar', icon: 'calendar-days' }
       ],
       events: [],
@@ -375,8 +381,8 @@ export default {
     },
 
     currentMonthYear() {
-      const months = ['January', 'February', 'March', 'April', 'May', 'June', 
-                     'July', 'August', 'September', 'October', 'November', 'December'];
+      const months = ['January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'];
       return `${months[this.currentMonth.getMonth()]} ${this.currentMonth.getFullYear()}`;
     }
   },
