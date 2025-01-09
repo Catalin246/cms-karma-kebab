@@ -46,7 +46,7 @@
                         </td>
                         <td class="px-4 py-2 text-black border">
                             <div>{{ event.person.name }}</div>
-                            <div class="text-sm text-gray-500">{{ event.person.phone }}</div>
+                            <div class="text-sm text-gray-500">{{ event.person.email }}</div>
                         </td>
                         <td class="px-4 py-2 text-black border">${{ event.money.toFixed(2) }}</td>
                         <td class="px-4 py-2 text-black border">
@@ -150,7 +150,7 @@
                                     class="p-2 border rounded bg-white text-gray-900" type="text" />
                                 <input placeholder="LastName" v-model="eventForm.person.lastName"
                                     class="p-2 border rounded bg-white text-gray-900" type="text" />
-                                <input placeholder="Phone" v-model="eventForm.person.phone"
+                                <input placeholder="Email" v-model="eventForm.person.email"
                                     class="p-2 border rounded bg-white text-gray-900" type="tel" />
                             </div>
                         </div>
@@ -321,7 +321,7 @@ export default {
                 status: "PENDING",
                 person: {
                     name: "",
-                    phone: ""
+                    email: ""
                 },
                 note: ""
             },
@@ -509,8 +509,9 @@ export default {
                     money: event.money || 0,
                     status: event.status || "PENDING",
                     person: {
-                        name: `${event.person?.firstName || ""} ${event.person?.lastName || ""}`.trim(),
-                        email: event.person?.email || ""
+                        firstName: event.person.firstName || "",
+                        lastName: event.person.lastName || "",
+                        email: event.person.email || ""
                     },
                     note: event.note || "",
                     shiftIds: event.shiftIds || [],
@@ -541,7 +542,7 @@ export default {
                 status: "PENDING",
                 person: {
                     name: "",
-                    phone: ""
+                    email: ""
                 },
                 note: ""
             };
