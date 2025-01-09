@@ -27,26 +27,36 @@
         <div v-if="currentView === 'dashboard'" class="space-y-6">
           <h2 class="text-2xl font-bold text-black">Dashboard</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="bg-white p-6 rounded-lg shadow border">
-              <h3 class="text-lg font-semibold text-black mb-4">Upcoming Events</h3>
-              <div class="space-y-2">
-                <div v-for="event in upcomingEvents" :key="event.id" class="p-3 bg-gray-50 rounded-md text-black">
-                  {{ event.name }} - {{ event.date }}
+            <div>
+              <div class="bg-white p-6 rounded-lg shadow border">
+                <h3 class="text-lg font-semibold text-black mb-4">Upcoming Events</h3>
+              </div>
+              
+              <div class="py-3">
+                <div v-for="event in upcomingEvents" :key="event.id" class="p-3 bg-green-700 rounded-lg shadow border text-white">
+                  {{ event.description }} - {{ formatDate(event.startTime) }}
                 </div>
               </div>
             </div>
-            <div class="bg-white p-6 rounded-lg shadow border">
-              <h3 class="text-lg font-semibold text-black mb-4">Active Employees</h3>
-              <div class="space-y-2">
+
+            <div>
+              <div class="bg-white p-6 rounded-lg shadow border">
+                <h3 class="text-lg font-semibold text-black mb-4">Active Employees</h3>
+              </div>
+              
+              <div class="py-3">
                 <div v-for="employee in activeEmployees" :key="employee.id"
                   class="p-3 bg-gray-50 rounded-md text-black">
                   {{ employee.name }} - {{ employee.role }}
                 </div>
               </div>
             </div>
-            <div class="bg-white p-6 rounded-lg shadow border">
-              <h3 class="text-lg font-semibold text-black mb-4">Truck Status</h3>
-              <div class="space-y-2">
+            <div>
+              <div class="bg-white p-6 rounded-lg shadow border">
+                <h3 class="text-lg font-semibold text-black mb-4">Truck Status</h3>
+              </div>
+              
+              <div class="py-3">
                 <div v-for="truck in trucks" :key="truck.id" class="p-3 bg-gray-50 rounded-md text-black">
                   {{ truck.name }} - {{ truck.status }}
                 </div>
@@ -195,7 +205,7 @@ export default {
   computed: {
     upcomingEvents() {
       return this.events
-        .filter(event => new Date(event.date) >= new Date())
+        .filter(event => new Date(event.startTime) >= new Date())
         .sort((a, b) => new Date(a.date) - new Date(b.date))
         .slice(0, 5);
     },
@@ -214,6 +224,19 @@ export default {
   },
 
   methods: {
+    formatDate(dateString) {
+      const date = new Date(dateString); // Parse the ISO string into a Date object
+      return date.toLocaleString('en-US', { // Format the date
+        weekday: 'short', // Short weekday (e.g., Mon, Tue)
+        year: 'numeric', // Full year (e.g., 2025)
+        month: 'short', // Abbreviated month (e.g., Jan, Feb)
+        day: 'numeric', // Day of the month (e.g., 31)
+        hour: 'numeric', // Hour
+        minute: 'numeric', // Minute
+        second: 'numeric', // Second
+        hour12: true // 12-hour format (e.g., 2:00 PM)
+      });
+    },
 
     // UI Methods
     navigateTo(view) {
@@ -275,13 +298,55 @@ export default {
       this.showShiftsModal = false;
       this.currentEvent = null;
       this.currentEventShifts = [];
-    }
+    },
+
+    async fetchEvents() {
+        try {
+            const response = await axios.get(import.meta.env.VITE_APP_API_GATEWAY + "/events");
+
+            // Check if response has the expected structure
+            if (!response.data || !response.data.data || !Array.isArray(response.data.data)) {
+                throw new Error("Unexpected response structure");
+            }
+
+            // Transform response to fit the app's data structure
+            this.events = response.data.data.map(event => ({
+                id: event.rowKey || "",
+                startTime: event.startTime || "",
+                endTime: event.endTime || "",
+                address: event.address || "",
+                venue: event.venue || "",
+                description: event.description || "",
+                money: event.money || 0,
+                status: event.status || "PENDING",
+                person: {
+                    firstName: event.person.firstName || "",
+                    lastName: event.person.lastName || "",
+                    email: event.person.email || ""
+                },
+                note: event.note || "",
+                shiftIds: event.shiftIds || [],
+                roleIds: event.roleIds || null
+            }));
+
+            console.log('Processed events:', this.events);
+        } catch (error) {
+            console.error("Error fetching events:", error);
+            if (error.response) {
+                console.error("Response data:", error.response.data);
+                console.error("Response status:", error.response.status);
+            }
+            this.events = [];
+            throw new Error("Failed to load events: " + (error.message || "Unknown error"));
+        }
+    },
   },
 
   // Lifecycle hooks
   async created() {
     try {
       this.addNotification('Application initialized successfully', 'success');
+      this.fetchEvents();
     } catch (error) {
       this.addNotification('Error initializing application', 'error');
       console.error('Initialization error:', error);
