@@ -46,7 +46,7 @@
                         </td>
                         <td class="px-4 py-2 text-black border">
                             <div>{{ event.person.name }}</div>
-                            <div class="text-sm text-gray-500">{{ event.person.email }}</div>
+                            <div class="text-sm text-gray-500">{{ event.person.firstName + " " +  event.person.lastName }}</div>
                         </td>
                         <td class="px-4 py-2 text-black border">€{{ event.money.toFixed(2) }}</td>
                         <td class="px-4 py-2 text-black border">
@@ -350,7 +350,8 @@ export default {
             return this.events.filter(event =>
                 event.description.toLowerCase().includes(searchLower) ||
                 event.venue.toLowerCase().includes(searchLower) ||
-                event.person.name.toLowerCase().includes(searchLower)
+                event.person.firstName.toLowerCase().includes(searchLower) ||
+                event.person.lastName.toLowerCase().includes(searchLower)
             );
         }
     },
@@ -571,22 +572,27 @@ export default {
 
         async addEvent() {
             try {
+                const formatAsISO = (date) => {
+                    const parsedDate = new Date(date);
+                    return parsedDate.toISOString(); 
+                };
+
                 const newEvent = {
-                    PartitionKey: "Event",
-                    RowKey: null, // Let the server generate this if needed
-                    StartTime: this.eventForm.startTime,
-                    EndTime: this.eventForm.endTime,
-                    Address: this.eventForm.address,
-                    Venue: this.eventForm.venue,
-                    Description: this.eventForm.description,
-                    Money: this.eventForm.money,
-                    Status: this.eventForm.status,
-                    Person: {
-                        firstName: this.eventForm.person.name.split(" ")[0] || "",
-                        lastName: this.eventForm.person.name.split(" ")[1] || "",
+                    partitionKey: "event-group",
+                    address: this.eventForm.address,
+                    venue: this.eventForm.venue,
+                    description: this.eventForm.description,
+                    startTime: formatAsISO(this.eventForm.startTime),
+                    endTime: formatAsISO(this.eventForm.endTime),
+                    money: this.eventForm.money,
+                    status: this.eventForm.status,
+                    person: {
+                        firstName: this.eventForm.person.firstName || "",
+                        lastName: this.eventForm.person.lastName || "",
                         email: this.eventForm.person.email || ""
                     },
-                    Note: this.eventForm.note
+                    note: this.eventForm.note,
+                    roleIDs: this.eventForm.roleIDs || []
                 };
 
                 await axios.post(import.meta.env.VITE_APP_API_GATEWAY + "/events", newEvent);
@@ -601,7 +607,7 @@ export default {
 
         async updateEvent() {
             try {
-                const updateUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/events/event-group-winter/${this.eventForm.id}`;
+                const updateUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/events/event-group/${this.eventForm.id}`;
 
                 const formatAsISO = (date) => {
                     const parsedDate = new Date(date);
@@ -637,7 +643,7 @@ export default {
         async deleteEvent(event) {
             if (confirm("Are you sure you want to delete this event?")) {
                 try {
-                    const deleteUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/events/event-group-winter/${event.id}`;
+                    const deleteUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/events/event-group/${event.id}`;
                     await axios.delete(deleteUrl);
                     this.events = this.events.filter(e => e.id !== event.id);
                     alert("Event deleted successfully!");
