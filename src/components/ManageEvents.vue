@@ -48,7 +48,7 @@
                             <div>{{ event.person.name }}</div>
                             <div class="text-sm text-gray-500">{{ event.person.email }}</div>
                         </td>
-                        <td class="px-4 py-2 text-black border">${{ event.money.toFixed(2) }}</td>
+                        <td class="px-4 py-2 text-black border">€{{ event.money.toFixed(2) }}</td>
                         <td class="px-4 py-2 text-black border">
                             <!-- Display number of people working on the event -->
                             <div>{{ event.shiftIDs ? event.shiftIDs.length : 0 }} people</div>
@@ -110,7 +110,7 @@
                         </div>
 
                         <div>
-                            <label for="money" class="block text-gray-700">Cost ($)</label>
+                            <label for="money" class="block text-gray-700">Cost (€)</label>
                             <input id="money" v-model="eventForm.money"
                                 class="w-full p-2 border rounded bg-white text-gray-900" 
                                 type="number" step="0.01" min="0" />
