@@ -12,7 +12,7 @@ Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://
 
 `npm run dev`
 
-## Creadentials for local devolopment
+## Creadentials
 
 username: admin
 password: admin
