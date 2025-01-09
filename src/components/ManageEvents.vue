@@ -14,7 +14,7 @@
                 <!-- Table Header -->
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-4 py-2 text-left text-black border">Name</th>
+                        <th class="px-4 py-2 text-left text-black border">Description</th>
                         <th class="px-4 py-2 text-left text-black border">Date & Time</th>
                         <th class="px-4 py-2 text-left text-black border">Venue</th>
                         <th class="px-4 py-2 text-left text-black border">Status</th>
@@ -28,8 +28,8 @@
                 <tbody>
                     <tr v-for="event in filteredEvents" :key="event.id" class="border-t">
                         <td class="px-4 py-2 text-black border">
-                            <div>{{ event.name }}</div>
-                            <div class="text-sm text-gray-500">{{ event.description }}</div>
+                            <div>{{ event.description }}</div>
+                            <!-- <div class="text-sm text-gray-500">{{ event.description }}</div> -->
                         </td>
                         <td class="px-4 py-2 text-black border">
                             <div>{{ formatDateTime(event.startTime) }}</div>
@@ -80,8 +80,8 @@
                     <div class="grid grid-cols-2 gap-4">
                         <!-- Event Form Fields -->
                         <div>
-                            <label for="eventName" class="block text-gray-700">Event Name*</label>
-                            <input id="eventName" v-model="eventForm.name"
+                            <label for="eventDescription" class="block text-gray-700">Event Description*</label>
+                            <input id="eventDescription" v-model="eventForm.description"
                                 class="w-full p-2 border rounded bg-white text-gray-900" type="text" required />
                         </div>
                         
@@ -145,19 +145,15 @@
 
                         <div>
                             <label for="person" class="block text-gray-700">Contact Person</label>
-                            <div class="grid grid-cols-2 gap-2">
-                                <input placeholder="Name" v-model="eventForm.person.name"
+                            <div class="grid grid-cols-3 gap-2">
+                                <input placeholder="FirstName" v-model="eventForm.person.firstName"
+                                    class="p-2 border rounded bg-white text-gray-900" type="text" />
+                                <input placeholder="LastName" v-model="eventForm.person.lastName"
                                     class="p-2 border rounded bg-white text-gray-900" type="text" />
                                 <input placeholder="Phone" v-model="eventForm.person.phone"
                                     class="p-2 border rounded bg-white text-gray-900" type="tel" />
                             </div>
                         </div>
-                    </div>
-
-                    <div>
-                        <label for="description" class="block text-gray-700">Description</label>
-                        <textarea id="description" v-model="eventForm.description"
-                            class="w-full p-2 border rounded bg-white text-gray-900" rows="3"></textarea>
                     </div>
 
                     <div>
@@ -316,7 +312,6 @@ export default {
             searchEvent: "",
             eventForm: {
                 id: "",
-                name: "",
                 startTime: "",
                 endTime: "",
                 address: "",
@@ -353,7 +348,7 @@ export default {
         filteredEvents() {
             const searchLower = this.searchEvent.toLowerCase();
             return this.events.filter(event =>
-                event.name.toLowerCase().includes(searchLower) ||
+                event.description.toLowerCase().includes(searchLower) ||
                 event.venue.toLowerCase().includes(searchLower) ||
                 event.person.name.toLowerCase().includes(searchLower)
             );
@@ -506,7 +501,6 @@ export default {
                 // Transform response to fit the app's data structure
                 this.events = response.data.data.map(event => ({
                     id: event.rowKey || "",
-                    name: event.eventName || event.description || "", // Fallback to description if eventName isn't present
                     startTime: event.startTime || "",
                     endTime: event.endTime || "",
                     address: event.address || "",
@@ -538,7 +532,6 @@ export default {
         clearForm() {
             this.eventForm = {
                 id: "",
-                name: "",
                 startTime: "",
                 endTime: "",
                 address: "",
@@ -580,7 +573,6 @@ export default {
                 const newEvent = {
                     PartitionKey: "Event",
                     RowKey: null, // Let the server generate this if needed
-                    EventName: this.eventForm.name,
                     StartTime: this.eventForm.startTime,
                     EndTime: this.eventForm.endTime,
                     Address: this.eventForm.address,
@@ -608,20 +600,28 @@ export default {
 
         async updateEvent() {
             try {
-                const updateUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/events/Event/${this.eventForm.id}`;
+                const updateUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/events/event-group-winter/${this.eventForm.id}`;
+
+                const formatAsISO = (date) => {
+                    const parsedDate = new Date(date);
+                    return parsedDate.toISOString(); 
+                };
+
                 const updatedEvent = {
-                    PartitionKey: "Event",
-                    RowKey: this.eventForm.id,
-                    EventName: this.eventForm.name,
-                    StartTime: this.eventForm.startTime,
-                    EndTime: this.eventForm.endTime,
-                    Address: this.eventForm.address,
-                    Venue: this.eventForm.venue,
-                    Description: this.eventForm.description,
-                    Money: this.eventForm.money,
-                    Status: this.eventForm.status,
-                    Person: this.eventForm.person,
-                    Note: this.eventForm.note
+                    address: this.eventForm.address,
+                    venue: this.eventForm.venue,
+                    description: this.eventForm.description,
+                    startTime: formatAsISO(this.eventForm.startTime),
+                    endTime: formatAsISO(this.eventForm.endTime),
+                    money: this.eventForm.money,
+                    status: this.eventForm.status,
+                    person: {
+                        firstName: this.eventForm.person.firstName,
+                        lastName: this.eventForm.person.lastName,
+                        email: this.eventForm.person.email
+                    },
+                    note: this.eventForm.note,
+                    shiftIDs: this.eventForm.shiftIDs
                 };
                 await axios.put(updateUrl, updatedEvent);
                 await this.fetchEvents();
@@ -636,7 +636,7 @@ export default {
         async deleteEvent(event) {
             if (confirm("Are you sure you want to delete this event?")) {
                 try {
-                    const deleteUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/events/Event/${event.id}`;
+                    const deleteUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/events/event-group-winter/${event.id}`;
                     await axios.delete(deleteUrl);
                     this.events = this.events.filter(e => e.id !== event.id);
                     alert("Event deleted successfully!");
