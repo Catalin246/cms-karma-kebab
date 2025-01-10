@@ -115,12 +115,18 @@
                                 class="w-full p-2 border rounded bg-white text-gray-900" 
                                 type="number" step="0.01" min="0" />
                         </div>
-                        <div>
-                            <label for="shifts" class="block text-gray-700">Number of Employees</label>
-                            <input id="shifts" v-model="eventForm.numberofemps"
-                                class="w-half p-2 border rounded bg-white text-gray-900" 
-                                type="number" step="1" min="0" />
-                        </div>
+                        <!-- Number of Employees per Role -->
+                        <div class="col-span-2">
+                            <label class="block text-gray-700">Number of Employees per Role</label>
+                            <div v-for="role in roles" :key="role.id" class="mt-2">
+                                <label :for="`role-${role.id}`" class="block text-gray-600 capitalize">
+                                    {{ role.name }}
+                                </label>
+                                <input :id="`role-${role.id}`" v-model.number="roleShiftCounts[role.id]"
+                                    class="w-full p-2 border rounded bg-white text-gray-900" 
+                                    type="number" min="0" />
+                            </div>
+                        </div>                                          
 
                         <div>
                             <label class="block text-gray-700">Status</label>
@@ -306,6 +312,12 @@ export default {
     name: "ManageEvents",
     data() {
         return {
+            roles: [
+                { id: 0, name: "headTrucker" },
+                { id: 1, name: "staff" },
+                { id: 2, name: "chef" },
+            ],
+            roleShiftCounts: {},
             events: [],
             showModal: false,
             isEdit: false,
@@ -320,10 +332,12 @@ export default {
                 money: 0,
                 status: "PENDING",
                 person: {
-                    name: "",
+                    firstName: "",
+                    lastName: "",
                     email: ""
                 },
-                note: ""
+                note: "",
+                roleIDs: []
             },
             showShiftsModal: false,
             showShiftEditModal: false,
@@ -577,6 +591,14 @@ export default {
                     return parsedDate.toISOString(); 
                 };
 
+                // Generate roleIDs array based on roleShiftCounts
+                const roleIDs = [];
+                for (const [roleId, count] of Object.entries(this.roleShiftCounts)) {
+                    for (let i = 0; i < count; i++) {
+                        roleIDs.push(Number(roleId));
+                    }
+                }
+
                 const newEvent = {
                     partitionKey: "event-group",
                     address: this.eventForm.address,
@@ -592,12 +614,13 @@ export default {
                         email: this.eventForm.person.email || ""
                     },
                     note: this.eventForm.note,
-                    roleIDs: this.eventForm.roleIDs || []
+                    roleIDs: roleIDs
                 };
 
                 await axios.post(import.meta.env.VITE_APP_API_GATEWAY + "/events", newEvent);
                 await this.fetchEvents();
                 this.closeModal();
+                console.log(this.roleIDs);
                 alert("Event added successfully!");
             } catch (error) {
                 console.error("Error adding event:", error);
