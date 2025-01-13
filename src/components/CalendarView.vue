@@ -30,17 +30,16 @@
           <div
             v-for="date in calendarDates"
             :key="date.date"
-            class="border p-2 min-h-24 relative"
-          >
+            class="border p-2 min-h-24 relative">
             <div class="font-bold text-black">{{ date.dayOfMonth }}</div>
             <div
-              v-for="event in date.events"
-              :key="event.id"
-              class="bg-blue-100 p-1 mb-1 rounded text-sm text-black"
+                v-for="event in date.events"
+                :key="event.id"
+                class="bg-blue-100 p-1 mb-1 rounded text-sm text-black"
             >
-              {{ event.name }}
+                {{ event.description }}
             </div>
-          </div>
+        </div>
         </div>
       </div>
     </div>
@@ -49,6 +48,11 @@
   <script>
   import axios from "axios";
   import dayjs from "dayjs";
+  import utc from "dayjs/plugin/utc";
+  import isBetween from "dayjs/plugin/isBetween";
+  dayjs.extend(utc);
+  dayjs.extend(isBetween);
+
   
   export default {
     data() {
@@ -66,48 +70,56 @@
       calendarDates() {
         const startOfMonth = this.currentDate.startOf("month");
         const endOfMonth = this.currentDate.endOf("month");
-  
+
         const startDate = startOfMonth.startOf("week");
         const endDate = endOfMonth.endOf("week");
-  
+
         const dates = [];
         let current = startDate;
-  
+
         while (current.isBefore(endDate) || current.isSame(endDate, "day")) {
-          const dayOfMonth = current.date();
-          const events = this.events.filter((event) =>
-            dayjs(event.date).isSame(current, "day")
-          );
-  
-          dates.push({
-            date: current.format("YYYY-MM-DD"),
-            dayOfMonth,
-            events,
-          });
-  
-          current = current.add(1, "day");
+            const dayOfMonth = current.date();
+
+            // Filter events based on whether the current date falls within the event's start and end date range
+            const events = this.events.filter(event => {
+                const eventStart = dayjs(event.startTime);
+                const eventEnd = dayjs(event.endTime);
+
+                return current.isBetween(eventStart, eventEnd, "day", "[]"); // Inclusive range
+            });
+
+            dates.push({
+                date: current.format("YYYY-MM-DD"),
+                dayOfMonth,
+                events,
+            });
+
+            current = current.add(1, "day");
         }
-  
+
         return dates;
-      },
+    },
+
     },
     methods: {
       async fetchEvents() {
-        this.loading = true;
-        this.error = null;
-        // ASSUMES EVENTS CAN BE FILTERED BY MONTH
         try {
-          const response = await axios.get(`${import.meta.env.VITE_APP_API_GATEWAY}/events`, {
-            params: { month: this.currentDate.format("YYYY-MM") },
-          });
-          this.events = response.data;
+            const response = await axios.get(`${import.meta.env.VITE_APP_API_GATEWAY}/events`, {
+                params: { month: this.currentDate.format("YYYY-MM") },
+            });
+
+            // Ensure startTime and endTime are parsed with UTC
+            this.events = response.data.data.map(event => ({
+                id: event.rowKey,
+                description: event.description || "No description",
+                startTime: dayjs.utc(event.startTime),  // Use utc() to handle UTC dates
+                endTime: dayjs.utc(event.endTime),      // Same for endTime
+                address: event.address,
+            }));
         } catch (err) {
-          this.error = "Failed to load events.";
-          console.error(err);
-        } finally {
-          this.loading = false;
+            console.error("Failed to fetch events:", err);
         }
-      },
+    },
       previousMonth() {
         this.currentDate = this.currentDate.subtract(1, "month");
         this.fetchEvents();

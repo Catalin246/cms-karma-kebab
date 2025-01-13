@@ -94,13 +94,10 @@ export default {
             },
         };
     },
-    mounted() {
-        this.loadTasks(); // Load tasks when the component is mounted
-    },
     methods: {
         async fetchTasks() {
             try {
-                const response = await axios.get("http://localhost:3007/duties");
+                const response = await axios.get(`${import.meta.env.VITE_APP_API_GATEWAY}/duties`);
                 this.tasks = response.data
                     .filter(task => task.PartitionKey === "Duty")
                     .map(task => ({
@@ -113,22 +110,6 @@ export default {
                 console.error("Error fetching tasks:", error);
             }
         },
-        async loadTasks() {
-            try {
-                const response = await axios.get("http://localhost:3007/duties");
-                // Set the tasks data with the response
-                this.tasks = response.data.map(task => ({
-                    id: task.RowKey, // RowKey is the ID of the task
-                    name: task.DutyName,
-                    description: task.DutyDescription,
-                    roleId: task.RoleId,
-                }));
-            } catch (error) {
-                console.error("Error loading tasks:", error);
-                alert("Failed to load tasks.");
-            }
-        },
-
         async addTask() {
             try {
                 const newTask = {
@@ -136,14 +117,8 @@ export default {
                     DutyName: this.taskForm.name,
                     DutyDescription: this.taskForm.description,
                 };
-
-                // Make the POST request to the backend to add the new task
-                await axios.post("http://localhost:3007/duties", newTask);
-
-                // Reload the task list by calling the method to fetch tasks
-                this.loadTasks();
-
-                // Close the modal and show success message
+                await axios.post(`${import.meta.env.VITE_APP_API_GATEWAY}/duties`, newTask);
+                this.fetchTasks();
                 this.closeModal();
                 alert("Task added successfully!");
             } catch (error) {
@@ -151,11 +126,9 @@ export default {
                 alert("Failed to add the task.");
             }
         },
-
-
         async updateTask() {
             try {
-                const updateUrl = `http://localhost:3007/duties/Duty/${this.taskForm.id}`;
+                const updateUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/duties/Duty/${this.taskForm.id}`;
                 const updatedTask = {
                     PartitionKey: "Duty",
                     RowKey: this.taskForm.id,
@@ -164,15 +137,7 @@ export default {
                     DutyDescription: this.taskForm.description,
                 };
                 await axios.put(updateUrl, updatedTask);
-                const index = this.tasks.findIndex(task => task.id === this.taskForm.id);
-                if (index !== -1) {
-                    this.tasks[index] = {
-                        id: this.taskForm.id,
-                        name: this.taskForm.name,
-                        description: this.taskForm.description,
-                        roleId: this.taskForm.roleId,
-                    };
-                }
+                this.fetchTasks();
                 this.closeModal();
                 alert("Task updated successfully!");
             } catch (error) {
@@ -182,9 +147,9 @@ export default {
         },
         async deleteTask(task) {
             try {
-                const deleteUrl = `http://localhost:3007/duties/Duty/${task.id}`;
+                const deleteUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/duties/Duty/${task.id}`;
                 await axios.delete(deleteUrl);
-                this.tasks = this.tasks.filter(t => t.id !== task.id);
+                this.fetchTasks();
                 alert("Task deleted successfully!");
             } catch (error) {
                 console.error("Error deleting task:", error);
