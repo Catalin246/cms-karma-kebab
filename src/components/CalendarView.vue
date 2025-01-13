@@ -97,7 +97,7 @@
         this.error = null;
         // ASSUMES EVENTS CAN BE FILTERED BY MONTH
         try {
-          const response = await axios.get(`${import.meta.env.VUE_APP_API_BASE_URL}/events`, {
+          const response = await axios.get(`${import.meta.env.VITE_APP_API_GATEWAY}/events`, {
             params: { month: this.currentDate.format("YYYY-MM") },
           });
           this.events = response.data;
