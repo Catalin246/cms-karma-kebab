@@ -4,8 +4,12 @@
     <!-- Navbar -->
     <nav class="h-16 bg-blue-600 text-white px-6 flex items-center justify-between shadow-md">
       <h1 class="text-xl font-bold">KK Event & Employee Management CMS</h1>
-      <button class="bg-blue-800 px-4 py-2 rounded hover:bg-blue-700">Logout</button>
-    </nav>
+      <button 
+        class="bg-blue-800 px-4 py-2 rounded hover:bg-blue-700"
+        @click="handleLogout"
+      >
+        Logout
+      </button>    </nav>
 
     <!-- Content Container -->
     <div class="h-[calc(100vh-4rem)] w-full flex">
@@ -114,6 +118,7 @@ import ManageEvents from './components/ManageEvents.vue';
 import ManageTrucks from './components/ManageTrucks.vue';
 import ManageEmployees from './components/ManageEmployees.vue';
 import CalendarView from './components/CalendarView.vue';
+import { logout } from './keycloak.js';
 
 
 
@@ -224,6 +229,10 @@ export default {
   },
 
   methods: {
+    handleLogout() {
+      logout();  // Call the Keycloak logout function
+      window.location.href = '/logged-out';  // Redirect to the login page after logout
+    },
     formatDate(dateString) {
       const date = new Date(dateString); // Parse the ISO string into a Date object
       return date.toLocaleString('en-US', { // Format the date

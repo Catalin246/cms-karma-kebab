@@ -3,13 +3,15 @@ import Keycloak from 'keycloak-js';
 const keycloak = new Keycloak({
   url: 'http://keycloak-service-india-dev.apps.inholland.hcs-lab.nl',
   realm: 'karma-kebab-realm',
-  clientId: 'karma-kebab-cms'});
+  clientId: 'karma-kebab-cms',
+});
 
 const initKeycloak = () => {
   return new Promise((resolve, reject) => {
     keycloak.init({ 
-      onLoad: 'login-required',  // This triggers login automatically if not authenticated
-      checkLoginIframe: false,   // Disable iframe checking for login status
+      onLoad: 'login-required', // Enforce login
+      redirectUri: window.location.origin + '/cms', 
+      checkLoginIframe: false
     }).then((authenticated) => {
       if (authenticated) {
         resolve(keycloak);
@@ -30,7 +32,7 @@ const logout = () => {
   keycloak.logout();
 };
 
-const getToken = () => { // CALL THIS FUNCTION TO GET THE TOKEN TO SEND AS AUTHORISATION IN REQUESTS
+const getToken = () => {
   return keycloak.token;
 };
 

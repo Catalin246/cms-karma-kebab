@@ -2,6 +2,7 @@
   <div v-if="!keycloak">
     <p>Loading...</p>
   </div>
+
   <div v-else>
     <h1 class="text-2xl font-bold mb-6 text-gray-800 text-center">Login</h1>
     <p v-if="error" class="error text-red-500 text-sm mt-2">{{ error }}</p>
@@ -26,8 +27,10 @@ export default {
       try {
         this.keycloak = await initKeycloak();
         if (isAdmin()) {
+          // Redirect to /cms if the user is an admin
           this.$router.push("/cms");
         } else {
+          this.$router.push("/user-login-attempt");
           this.error = "You do not have permission to access this CMS.";
         }
       } catch (error) {
