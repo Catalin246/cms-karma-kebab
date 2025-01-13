@@ -30,7 +30,7 @@ const logout = () => {
   keycloak.logout();
 };
 
-const getToken = () => {
+const getToken = () => { // CALL THIS FUNCTION TO GET THE TOKEN TO SEND AS AUTHORISATION IN REQUESTS
   return keycloak.token;
 };
 
