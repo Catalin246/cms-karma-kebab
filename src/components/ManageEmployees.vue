@@ -210,7 +210,7 @@
         this.loading.employees = true;
         this.error.employees = null;
         try {
-          const response = await this.$http.get("/employees");
+          const response = await httpClient.get("/employees");
           this.employees = response.data;
         } catch (error) {
           this.error.employees = "Failed to fetch employees.";
@@ -256,7 +256,7 @@
       },
       async addEmployee(employeeData) {
         try {
-          const response = await this.$http.post("/events", employeeData);
+          const response = await httpClient.post("/events", employeeData);
           this.employees.push(response.data);
           alert("Employee added successfully.");
         } catch (error) {
@@ -266,7 +266,7 @@
       },
       async editEmployee(id, employeeData) {
         try {
-          const response = await this.$http.put(`/employees/${id}`, employeeData);
+          const response = await httpClient.put(`/employees/${id}`, employeeData);
           const index = this.employees.findIndex(employee => employee.employeeId === id);
           if (index !== -1) this.employees.splice(index, 1, response.data);
           alert("Employee updated successfully.");
@@ -277,7 +277,7 @@
       },
       async deleteEmployee(id) {
         try {
-          await this.$http.delete(`/employees/${id}`);
+          await httpClient.delete(`/employees/${id}`);
           this.employees = this.employees.filter(employee => employee.employeeId !== id);
           alert("Employee deleted successfully.");
         } catch (error) {

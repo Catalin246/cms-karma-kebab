@@ -152,7 +152,7 @@
         this.loading.trucks = true;
         this.error.trucks = null;
         try {
-          const response = await this.$http.get(`/trucks`);
+          const response = await httpClient.get(`/trucks`);
           this.trucks = response.data;
         } catch (error) {
           this.error.trucks = "Failed to fetch trucks.";
@@ -189,7 +189,7 @@
       },
       async addTruck(truckData) {
         try {
-          const response = await this.$http.post(`/trucks`, truckData);
+          const response = await httpClient.post(`/trucks`, truckData);
           this.trucks.push(response.data);
           alert("Truck added successfully.");
         } catch (error) {
@@ -199,7 +199,7 @@
       },
       async editTruck(id, truckData) {
         try {
-          const response = await this.$http.put(`/trucks/${id}`, truckData);
+          const response = await httpClient.put(`/trucks/${id}`, truckData);
           const index = this.trucks.findIndex(truck => truck.id === id);
           if (index !== -1) this.trucks.splice(index, 1, response.data);
           alert("Truck updated successfully.");
@@ -210,7 +210,7 @@
       },
       async deleteTruck(id) {
         try {
-          await this.$http.delete(`/trucks/${id}`);
+          await httpClient.delete(`/trucks/${id}`);
 
           this.trucks = this.trucks.filter(truck => truck.id !== id);
           alert("Truck deleted successfully.");

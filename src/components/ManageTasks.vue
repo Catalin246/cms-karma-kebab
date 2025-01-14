@@ -97,7 +97,7 @@ export default {
     methods: {
         async fetchTasks() {
             try {
-                const response = await this.$http.get(`/duties`);
+                const response = await httpClient.get(`/duties`);
                 this.tasks = response.data
                     .filter(task => task.PartitionKey === "Duty")
                     .map(task => ({
@@ -117,7 +117,7 @@ export default {
                     DutyName: this.taskForm.name,
                     DutyDescription: this.taskForm.description,
                 };
-                await this.$http.post(`/duties`, newTask);
+                await httpClient.post(`/duties`, newTask);
 
                 this.fetchTasks();
                 this.closeModal();
@@ -137,7 +137,7 @@ export default {
                     DutyDescription: this.taskForm.description,
                 };
 
-                await this.$http.put(`/duties/Duty/${this.taskForm.id}`, updatedTask);
+                await httpClient.put(`/duties/Duty/${this.taskForm.id}`, updatedTask);
 
                 this.fetchTasks();
                 this.closeModal();
@@ -149,7 +149,7 @@ export default {
         },
         async deleteTask(task) {
             try {
-                await this.$http.delete(`/duties/Duty/${task.id}`);
+                await httpClient.delete(`/duties/Duty/${task.id}`);
                 this.fetchTasks();
                 alert("Task deleted successfully!");
             } catch (error) {

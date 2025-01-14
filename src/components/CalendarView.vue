@@ -104,7 +104,7 @@
     methods: {
       async fetchEvents() {
       try {
-          const response = await this.$http.get('/events', {
+          const response = await httpClient.get('/events', {
               params: { 
                   month: this.currentDate.format("YYYY-MM") 
               }

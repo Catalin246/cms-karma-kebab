@@ -119,6 +119,8 @@ import ManageTrucks from './components/ManageTrucks.vue';
 import ManageEmployees from './components/ManageEmployees.vue';
 import CalendarView from './components/CalendarView.vue';
 import { logout } from './keycloak.js';
+import httpClient from './httpClient';
+
 
 
 
@@ -311,7 +313,7 @@ export default {
 
     async fetchEvents() {
         try {
-          const response = await this.$http.get("/events");
+          const response = await httpClient.get("/events");
             // Check if response has the expected structure
             if (!response.data || !response.data.data || !Array.isArray(response.data.data)) {
                 throw new Error("Unexpected response structure");

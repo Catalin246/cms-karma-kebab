@@ -374,7 +374,7 @@ export default {
             try {
                 const shiftIds = this.events.find(e => e.id === eventId)?.shiftIds || [];
                 const shiftPromises = shiftIds.map(id => 
-                    this.$http.get(`/shifts/${id}`)
+                    httpClient.get(`/shifts/${id}`)
                 );
                 const responses = await Promise.all(shiftPromises);
                 this.eventShifts = responses.map(r => r.data);
@@ -387,7 +387,7 @@ export default {
 
         async loadEmployees() {
             try {
-                const response = await this.$http.get(`/employees`);
+                const response = await httpClient.get(`/employees`);
                 this.employees = response.data;
             } catch (error) {
                 console.error("Error loading employees:", error);
@@ -445,9 +445,9 @@ export default {
                 };
 
                 if (this.isEditingShift) {
-                    await this.$http.put(`/shifts/${this.shiftForm.id}`, shiftData);
+                    await httpClient.put(`/shifts/${this.shiftForm.id}`, shiftData);
                 } else {
-                    await this.$http.post(`/shifts`, shiftData);
+                    await httpClient.post(`/shifts`, shiftData);
 
                 }
 
@@ -462,7 +462,7 @@ export default {
         async deleteShift(shiftId) {
             if (confirm("Are you sure you want to delete this shift?")) {
                 try {
-                    await this.$http.delete(`/shifts/${shiftId}`);
+                    await httpClient.delete(`/shifts/${shiftId}`);
                     await this.loadEventShifts(this.currentEventId);
                 } catch (error) {
                     console.error("Error deleting shift:", error);
@@ -505,7 +505,7 @@ export default {
 
         async fetchEvents() {
             try {
-                const response = await this.$http.get(`/events`);
+                const response = await httpClient.get(`/events`);
 
                 console.log('API response:', response);
 
@@ -617,7 +617,7 @@ export default {
                     note: this.eventForm.note,
                     roleIDs: roleIDs
                 };
-                await this.$http.post(`/events`, newEvent);
+                await httpClient.post(`/events`, newEvent);
 
                 await this.fetchEvents();
                 this.closeModal();
@@ -631,7 +631,7 @@ export default {
 
         async updateEvent() {
             try {
-                const updateUrl = await this.$http.put(`/events/event-group/${this.eventForm.id}`);
+                const updateUrl = await httpClient.put(`/events/event-group/${this.eventForm.id}`);
 
                 const formatAsISO = (date) => {
                     const parsedDate = new Date(date);
@@ -667,7 +667,7 @@ export default {
         async deleteEvent(event) {
             if (confirm("Are you sure you want to delete this event?")) {
                 try {
-                    await this.$http.delete(`/events/event-group/${event.id}`);
+                    await httpClient.delete(`/events/event-group/${event.id}`);
                     this.events = this.events.filter(e => e.id !== event.id);
                     alert("Event deleted successfully!");
                 } catch (error) {
