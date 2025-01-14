@@ -374,7 +374,7 @@ export default {
             try {
                 const shiftIds = this.events.find(e => e.id === eventId)?.shiftIds || [];
                 const shiftPromises = shiftIds.map(id => 
-                    axios.get(`${import.meta.env.VITE_APP_API_URL}/shifts/${id}`)
+                    this.$http.get(`/shifts/${id}`)
                 );
                 const responses = await Promise.all(shiftPromises);
                 this.eventShifts = responses.map(r => r.data);
@@ -387,7 +387,7 @@ export default {
 
         async loadEmployees() {
             try {
-                const response = await axios.get(`${import.meta.env.VITE_APP_API_GATEWAY}/employees`);
+                const response = await this.$http.get(`/employees`);
                 this.employees = response.data;
             } catch (error) {
                 console.error("Error loading employees:", error);
@@ -445,9 +445,10 @@ export default {
                 };
 
                 if (this.isEditingShift) {
-                    await axios.put(`${import.meta.env.VITE_APP_API_GATEWAY}/shifts/${this.shiftForm.id}`, shiftData);
+                    await this.$http.put(`/shifts/${this.shiftForm.id}`, shiftData);
                 } else {
-                    await axios.post(`${import.meta.env.VITE_APP_API_GATEWAY}/shifts`, shiftData);
+                    await this.$http.post(`/shifts`, shiftData);
+
                 }
 
                 await this.loadEventShifts(this.currentEventId);
@@ -461,7 +462,7 @@ export default {
         async deleteShift(shiftId) {
             if (confirm("Are you sure you want to delete this shift?")) {
                 try {
-                    await axios.delete(`${import.meta.env.VITE_APP_API_GATEWAY}/shifts/${shiftId}`);
+                    await this.$http.delete(`/shifts/${shiftId}`);
                     await this.loadEventShifts(this.currentEventId);
                 } catch (error) {
                     console.error("Error deleting shift:", error);
@@ -504,7 +505,7 @@ export default {
 
         async fetchEvents() {
             try {
-                const response = await axios.get(import.meta.env.VITE_APP_API_GATEWAY + "/events");
+                const response = await this.$http.get(`/events`);
 
                 console.log('API response:', response);
 
@@ -616,8 +617,8 @@ export default {
                     note: this.eventForm.note,
                     roleIDs: roleIDs
                 };
+                await this.$http.post(`/events`, newEvent);
 
-                await axios.post(import.meta.env.VITE_APP_API_GATEWAY + "/events", newEvent);
                 await this.fetchEvents();
                 this.closeModal();
                 console.log(this.roleIDs);
@@ -630,7 +631,7 @@ export default {
 
         async updateEvent() {
             try {
-                const updateUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/events/event-group/${this.eventForm.id}`;
+                const updateUrl = await this.$http.put(`/events/event-group/${this.eventForm.id}`);
 
                 const formatAsISO = (date) => {
                     const parsedDate = new Date(date);
@@ -666,8 +667,7 @@ export default {
         async deleteEvent(event) {
             if (confirm("Are you sure you want to delete this event?")) {
                 try {
-                    const deleteUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/events/event-group/${event.id}`;
-                    await axios.delete(deleteUrl);
+                    await this.$http.delete(`/events/event-group/${event.id}`);
                     this.events = this.events.filter(e => e.id !== event.id);
                     alert("Event deleted successfully!");
                 } catch (error) {
@@ -676,6 +676,7 @@ export default {
                 }
             }
         },
+
 
         handleSubmit() {
             if (this.isEdit) {

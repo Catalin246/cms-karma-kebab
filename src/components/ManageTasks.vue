@@ -97,7 +97,7 @@ export default {
     methods: {
         async fetchTasks() {
             try {
-                const response = await axios.get(`${import.meta.env.VITE_APP_API_GATEWAY}/duties`);
+                const response = await this.$http.get(`/duties`);
                 this.tasks = response.data
                     .filter(task => task.PartitionKey === "Duty")
                     .map(task => ({
@@ -117,7 +117,8 @@ export default {
                     DutyName: this.taskForm.name,
                     DutyDescription: this.taskForm.description,
                 };
-                await axios.post(`${import.meta.env.VITE_APP_API_GATEWAY}/duties`, newTask);
+                await this.$http.post(`/duties`, newTask);
+
                 this.fetchTasks();
                 this.closeModal();
                 alert("Task added successfully!");
@@ -128,7 +129,6 @@ export default {
         },
         async updateTask() {
             try {
-                const updateUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/duties/Duty/${this.taskForm.id}`;
                 const updatedTask = {
                     PartitionKey: "Duty",
                     RowKey: this.taskForm.id,
@@ -136,7 +136,9 @@ export default {
                     DutyName: this.taskForm.name,
                     DutyDescription: this.taskForm.description,
                 };
-                await axios.put(updateUrl, updatedTask);
+
+                await this.$http.put(`/duties/Duty/${this.taskForm.id}`, updatedTask);
+
                 this.fetchTasks();
                 this.closeModal();
                 alert("Task updated successfully!");
@@ -147,8 +149,7 @@ export default {
         },
         async deleteTask(task) {
             try {
-                const deleteUrl = `${import.meta.env.VITE_APP_API_GATEWAY}/duties/Duty/${task.id}`;
-                await axios.delete(deleteUrl);
+                await this.$http.delete(`/duties/Duty/${task.id}`);
                 this.fetchTasks();
                 alert("Task deleted successfully!");
             } catch (error) {

@@ -103,23 +103,25 @@
     },
     methods: {
       async fetchEvents() {
-        try {
-            const response = await axios.get(`${import.meta.env.VITE_APP_API_GATEWAY}/events`, {
-                params: { month: this.currentDate.format("YYYY-MM") },
-            });
+      try {
+          const response = await this.$http.get('/events', {
+              params: { 
+                  month: this.currentDate.format("YYYY-MM") 
+              }
+          });
 
-            // Ensure startTime and endTime are parsed with UTC
-            this.events = response.data.data.map(event => ({
-                id: event.rowKey,
-                description: event.description || "No description",
-                startTime: dayjs.utc(event.startTime),  // Use utc() to handle UTC dates
-                endTime: dayjs.utc(event.endTime),      // Same for endTime
-                address: event.address,
-            }));
-        } catch (err) {
-            console.error("Failed to fetch events:", err);
-        }
-    },
+          // Ensure startTime and endTime are parsed with UTC
+          this.events = response.data.data.map(event => ({
+              id: event.rowKey,
+              description: event.description || "No description",
+              startTime: dayjs.utc(event.startTime),  // Use utc() to handle UTC dates
+              endTime: dayjs.utc(event.endTime),      // Same for endTime
+              address: event.address,
+          }));
+      } catch (err) {
+          console.error("Failed to fetch events:", err);
+      }
+  },
       previousMonth() {
         this.currentDate = this.currentDate.subtract(1, "month");
         this.fetchEvents();

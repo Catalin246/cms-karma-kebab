@@ -311,8 +311,7 @@ export default {
 
     async fetchEvents() {
         try {
-            const response = await axios.get(import.meta.env.VITE_APP_API_GATEWAY + "/events");
-
+          const response = await this.$http.get("/events");
             // Check if response has the expected structure
             if (!response.data || !response.data.data || !Array.isArray(response.data.data)) {
                 throw new Error("Unexpected response structure");
