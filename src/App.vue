@@ -22,7 +22,7 @@
       </div>
 
       <!-- Main Content Area -->
-      <div class="w-[calc(100%-16rem)] h-full bg-blue-200 p-6 overflow-auto">
+      <div class="w-[calc(100%-16rem)] h-full bg-white p-6 overflow-auto">
         <!-- Dashboard View -->
         <div v-if="currentView === 'dashboard'" class="space-y-6">
           <h2 class="text-2xl font-bold text-black">Dashboard</h2>
