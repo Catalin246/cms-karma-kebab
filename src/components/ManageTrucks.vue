@@ -118,6 +118,8 @@
   
   <script>
   import axios from "axios";
+  import httpClient from '/src/httpClient.js';
+
   
   export default {
     data() {

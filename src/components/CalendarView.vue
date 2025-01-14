@@ -50,6 +50,8 @@
   import dayjs from "dayjs";
   import utc from "dayjs/plugin/utc";
   import isBetween from "dayjs/plugin/isBetween";
+  import httpClient from '/src/httpClient.js';
+
   dayjs.extend(utc);
   dayjs.extend(isBetween);
 
