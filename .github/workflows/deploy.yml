@@ -47,15 +47,3 @@ jobs:
       - name: Wait for Pod to be Running
         run: |
           kubectl rollout status deployment/cms-karma-kebab --timeout=60s
-
-      # Step 8: Run npm build inside the deployed pod
-      - name: Run npm run build inside the pod
-        run: |
-          # Get the name of the running cms-karma-kebab pod
-          POD_NAME=$(oc get pods --selector=app=cms-karma-kebab --field-selector=status.phase=Running -o jsonpath='{.items[0].metadata.name}')
-
-          # Install vite globally inside the pod (if needed)
-          oc exec $POD_NAME -- npm install -g vite
-          
-          # Execute 'npm run build' in the pod
-          oc exec $POD_NAME -- npm run build

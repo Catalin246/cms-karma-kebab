@@ -22,8 +22,3 @@ password: admin
 main branch - Ready for production.
 devlop branch - In development.
 feature/feature-name - When working on a feature. (ex. feature/create-login-screen)
-
-ToDo:
-- login page & functionality
-- real data instead of pseudo data - at least set up how the connections will work.
-- change the endpoints from localhost:3007 to the real live endpoint
