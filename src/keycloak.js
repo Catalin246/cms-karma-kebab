@@ -29,6 +29,16 @@ const login = () => {
 };
 
 const logout = () => {
+  // Clear the localStorage
+  localStorage.clear();
+
+  // Clear all cookies
+  document.cookie.split(';').forEach((cookie) => {
+    const cookieName = cookie.split('=')[0].trim();
+    document.cookie = `${cookieName}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+  });
+
+  // Log out from Keycloak
   keycloak.logout();
 };
 

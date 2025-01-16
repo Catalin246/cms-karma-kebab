@@ -633,7 +633,7 @@ export default {
 
         async updateEvent() {
             try {
-                const updateUrl = await httpClient.put(`/events/event-group/${this.eventForm.id}`);
+                // const updateUrl = await httpClient.put(`/events/event-group/${this.eventForm.id}`);
 
                 const formatAsISO = (date) => {
                     const parsedDate = new Date(date);
@@ -654,9 +654,9 @@ export default {
                         email: this.eventForm.person.email
                     },
                     note: this.eventForm.note,
-                    shiftIDs: this.eventForm.shiftIDs
+                    shiftIDs: []
                 };
-                await axios.put(updateUrl, updatedEvent);
+                await httpClient.put(`/events/event-group/${this.eventForm.id}`, updatedEvent);
                 await this.fetchEvents();
                 this.closeModal();
                 alert("Event updated successfully!");
