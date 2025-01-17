@@ -52,7 +52,7 @@ router.beforeEach((to, from, next) => {
       }
     } else {
       console.log("No token found");
-      //next("/login"); // No token found, redirect to login
+      next("/login"); // No token found, redirect to login
     }
   } else {
     next(); // Route doesn't require authentication, allow access
