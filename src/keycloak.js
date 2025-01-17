@@ -21,8 +21,6 @@ const authenticate = async (username, password) => {
     });
 
     console.log("Response from Keycloak:", response.data);
-
-    // Check for roles, you might need to fetch them separately if Keycloak doesn't send them in the response
     const roles = await getRolesFromKeycloak(response.data.access_token);
     response.data.roles = roles; // Add roles to the response
 

@@ -4,7 +4,6 @@ import keycloakService from './keycloak';
 
 // Create axios instance with default config
 const httpClient = axios.create({
-  // Add your base API URL here
   baseURL: import.meta.env.VITE_APP_API_GATEWAY,
   headers: {
     'Content-Type': 'application/json'

@@ -18,7 +18,7 @@ export default {
   methods: {
     loginAgain() {
       console.log("Redirecting to login page...");
-      this.$router.push( "/login" ); // Assuming the login route is named 'login'
+      this.$router.push( "/login" ); 
     }   
   },
 };
