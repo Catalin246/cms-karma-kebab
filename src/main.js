@@ -3,7 +3,7 @@ import './style.css';
 import App from "./App.vue";
 import Login from "./login.vue";
 import RootApp from "./root.vue";
-import LoggedOut from "./components/loggedout.vue";
+import LoggedOut from "./components/LoggedOut.vue";
 import UserLoginAttempt from "./components/UserAttemptLogin.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import { initKeycloak, isAdmin } from './keycloak';
