@@ -20,6 +20,8 @@ const authenticate = async (username, password) => {
       },
     });
 
+    console.log("Response from Keycloak:", response.data);
+
     // Check for roles, you might need to fetch them separately if Keycloak doesn't send them in the response
     const roles = await getRolesFromKeycloak(response.data.access_token);
     response.data.roles = roles; // Add roles to the response
@@ -50,33 +52,65 @@ const getRolesFromKeycloak = async (access_token) => {
   }
 };
 
-const getAccessToken = async (username, password) => {
-  console.log("Sending request to Keycloak to get access token...");
+// const getAccessToken = async (username, password) => {
+//   console.log("Sending request to Keycloak to get access token...");
 
-  const data = new URLSearchParams();
-  data.append("username", username);
-  data.append("password", password);
-  data.append("grant_type", "password");
-  data.append("scope", "openid");
-  data.append("client_id", CLIENT_ID);
+//   const data = new URLSearchParams();
+//   data.append("username", username);
+//   data.append("password", password);
+//   data.append("grant_type", "password");
+//   data.append("scope", "openid");
+//   data.append("client_id", CLIENT_ID);
 
-  try {
-    const response = await axios.post(KEYCLOAK_URL, data, {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    });
+//   try {
+//     const response = await axios.post(KEYCLOAK_URL, data, {
+//       headers: {
+//         "Content-Type": "application/x-www-form-urlencoded",
+//       },
+//     });
+    
+//     console.log(response.data.access_token);
+//     // Return only the access token
+//     return response.data.access_token;
+//   } catch (error) {
+//     console.error("Error during Keycloak authentication:", error);
+//     throw error;
+//   }
+// };
 
-    // Return only the access token
-    return response.data.access_token;
-  } catch (error) {
-    console.error("Error during Keycloak authentication:", error);
-    throw error;
-  }
+// const getAccessToken = async (username, password) => {
+//   console.log("Sending getaccestoken request to Keycloak...");
+  
+//   const data = new URLSearchParams();
+//   data.append("username", username);
+//   data.append("password", password);
+//   data.append("grant_type", "password");
+//   data.append("scope", "openid");
+//   data.append("client_id", CLIENT_ID);
+
+//   try {
+//     const response = await axios.post(KEYCLOAK_URL, data, {
+//       headers: {
+//         "Content-Type": "application/x-www-form-urlencoded",
+//       },
+//     });
+
+//     console.log(response.data.access_token);
+//     return response.data.access_token
+//   } catch (error) {
+//     console.error("Error during Keycloak authentication for getaccesstoken:", error);
+//     throw error;
+//   }
+// };
+
+const logout = () => {
+  console.log("Logging out and clearing user info...");
+  // Clear user credentials from localStorage
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
+  localStorage.removeItem("roles");
 };
 
-
 export default {
-  authenticate,
-  getAccessToken
+  authenticate, logout
 };

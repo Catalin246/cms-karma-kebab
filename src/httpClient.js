@@ -1,6 +1,6 @@
 // api/httpClient.js
 import axios from 'axios';
-import kaycloakService from './keycloak';
+import keycloakService from './keycloak';
 
 // Create axios instance with default config
 const httpClient = axios.create({
@@ -15,7 +15,8 @@ const httpClient = axios.create({
 httpClient.interceptors.request.use(
   async config => {
     try {
-      const token = await keycloakService.getAccessToken();
+      const token = localStorage.getItem('access_token');
+      console.log('Token:', token);
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -45,7 +46,7 @@ httpClient.interceptors.response.use(
         await window.keycloak.updateToken(70);
         
         // Get new token and retry request
-        const token = await keycloakService.getAccessToken();
+        const token = ocalStorage.getItem('access_token');
         originalRequest.headers.Authorization = `Bearer ${token}`;
         return httpClient(originalRequest);
       } catch (refreshError) {

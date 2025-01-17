@@ -40,16 +40,19 @@ router.beforeEach((to, from, next) => {
         const roles = decodedToken.realm_access?.roles || [];
 
         if (roles.includes("admin")) {
+          console.log("User is an admin");
           next(); // User is an admin, allow access
         } else {
+          console.log("User is not an admin");
           next("/login"); // Not an admin, redirect to login
         }
       } catch (error) {
-        console.error("Error decoding token:", error);
+        console.log("Error decoding token:");
         next("/login"); // If token is invalid, redirect to login
       }
     } else {
-      next("/login"); // No token found, redirect to login
+      console.log("No token found");
+      //next("/login"); // No token found, redirect to login
     }
   } else {
     next(); // Route doesn't require authentication, allow access
