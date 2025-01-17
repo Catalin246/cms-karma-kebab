@@ -118,7 +118,7 @@ import ManageEvents from './components/ManageEvents.vue';
 import ManageTrucks from './components/ManageTrucks.vue';
 import ManageEmployees from './components/ManageEmployees.vue';
 import CalendarView from './components/CalendarView.vue';
-import { logout } from './keycloak.js';
+import keycloakService from './keycloak.js';
 import httpClient from './httpClient';
 
 
@@ -232,7 +232,7 @@ export default {
 
   methods: {
     handleLogout() {
-      logout();  // Call the Keycloak logout function
+      keycloakService.logout();  // Call the Keycloak logout function
       window.location.href = '/logged-out';  // Redirect to the login page after logout
     },
     formatDate(dateString) {
