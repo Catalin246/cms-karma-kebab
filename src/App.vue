@@ -118,7 +118,7 @@ import ManageEvents from './components/ManageEvents.vue';
 import ManageTrucks from './components/ManageTrucks.vue';
 import ManageEmployees from './components/ManageEmployees.vue';
 import CalendarView from './components/CalendarView.vue';
-import { logout } from './keycloak.js';
+//import { logout } from './keycloak.js';
 import httpClient from './httpClient';
 
 
