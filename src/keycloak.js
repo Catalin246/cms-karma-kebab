@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const KEYCLOAK_URL = "http://keycloak-service-india-dev.apps.inholland.hcs-lab.nl/realms/karma-kebab-realm/protocol/openid-connect/token";
+const KEYCLOAK_URL = "https://keycloak-service-india-dev.apps.inholland.hcs-lab.nl/realms/karma-kebab-realm/protocol/openid-connect/token";
 const CLIENT_ID = "karma-kebab-realm-client";
 
 const authenticate = async (username, password) => {
@@ -35,7 +35,7 @@ const authenticate = async (username, password) => {
 const getRolesFromKeycloak = async (access_token) => {
   try {
     const response = await axios.get(
-      "http://keycloak-service-india-dev.apps.inholland.hcs-lab.nl/realms/karma-kebab-realm/protocol/openid-connect/userinfo",
+      "https://keycloak-service-india-dev.apps.inholland.hcs-lab.nl/realms/karma-kebab-realm/protocol/openid-connect/userinfo",
       {
         headers: {
           Authorization: `Bearer ${access_token}`,
