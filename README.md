@@ -12,11 +12,6 @@ Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://
 
 `npm run dev`
 
-## Creadentials
-
-username: admin
-password: admin
-
 ## Git Hub Flow
 
 main branch - Ready for production.
