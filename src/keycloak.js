@@ -1,7 +1,7 @@
 import Keycloak from 'keycloak-js';
 
 const keycloak = new Keycloak({
-  url: 'http://keycloak-service-india-dev.apps.inholland.hcs-lab.nl',
+  url: 'http://keycloak-route-india-dev.apps.inholland.hcs-lab.nl',
   realm: 'karma-kebab-realm',
   clientId: 'karma-kebab-cms',
 });
