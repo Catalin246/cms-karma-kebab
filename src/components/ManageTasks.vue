@@ -22,7 +22,7 @@
                         <td class="px-4 py-2 text-black border">{{ task.id }}</td>
                         <td class="px-4 py-2 text-black border">{{ task.name }}</td>
                         <td class="px-4 py-2 text-black border">{{ task.description }}</td>
-                        <td class="px-4 py-2 text-black border">{{ getRoleName(task.roleId) }}</td>
+                        <td class="px-4 py-2 text-black border">{{ task.roleId }}</td>
                         <td class="px-4 py-2 text-black border">
                             <button @click="openModal('edit', task)"
                                 class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2">
@@ -56,16 +56,11 @@
                             type="text" required />
                     </div>
                     <div class="mb-4">
-                        <label for="roleId" class="block text-gray-700">Role</label>
-                        <select id="roleId" v-model.number="taskForm.roleId"
-                            class="w-full p-2 border rounded bg-white text-gray-900 dark:bg-white dark:text-gray-900">
-                            <option value="0">Admin</option>
-                            <option value="1">HeadTrucker</option>
-                            <option value="2">Chef</option>
-                            <option value="3">Staff</option>
-                        </select>
+                        <label for="roleId" class="block text-gray-700">Role ID</label>
+                        <input id="roleId" v-model.number="taskForm.roleId"
+                            class="w-full p-2 border rounded bg-white text-gray-900 dark:bg-white dark:text-gray-900"
+                            type="number" required />
                     </div>
-
                     <div class="flex justify-between">
                         <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                             {{ isEdit ? 'Update Task' : 'Add Task' }}
@@ -182,15 +177,6 @@ export default {
             } else {
                 this.addTask();
             }
-        },
-        getRoleName(roleId) {
-            const roleMapping = {
-                0: "Admin",
-                1: "HeadTrucker",
-                2: "Chef",
-                3: "Staff",
-            };
-            return roleMapping[roleId] || "Unknown Role";
         },
     },
     mounted() {
