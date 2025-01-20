@@ -263,10 +263,9 @@
                         </div>
                         <div>
                             <label class="block text-gray-700">Employee</label>
-                            <select v-model="shiftForm.employeeId"
-                                class="w-full p-2 border rounded" required>
-                                <option v-for="employee in employees" :key="employee.id" :value="employee.id">
-                                    {{ employee.name }}
+                            <select v-model="shiftForm.employeeId" class="w-full p-2 border rounded" required>
+                                <option v-for="employee in employees" :key="employee.employeeId" :value="employee.employeeId">
+                                    {{ employee.fullName || ''}}
                                 </option>
                             </select>
                         </div>
@@ -274,10 +273,19 @@
                             <label class="block text-gray-700">Shift Type</label>
                             <select v-model="shiftForm.shiftType"
                                 class="w-full p-2 border rounded" required>
-                                <option value="NORMAL">Normal</option>
-                                <option value="STANDBY">Standby</option>
+                                <option value="Normal">Normal</option>
+                                <option value="Standby">Standby</option>
                             </select>
                         </div>
+                        <div>
+                            <label class="block text-gray-700">Role</label>
+                            <select v-model="shiftForm.roleId" class="w-full p-2 border rounded" required>
+                                <option v-for="role in roles" :key="role.id" :value="role.id">
+                                    {{ role.name }}
+                                </option>
+                            </select>
+                        </div>
+
                         <div>
                             <label class="block text-gray-700">Status</label>
                             <select v-model="shiftForm.status"
@@ -352,11 +360,11 @@ export default {
                 startTime: "",
                 endTime: "",
                 employeeId: "",
-                shiftType: "NORMAL",
-                status: "UNCONFIRMED",
+                shiftType: "Normal",
                 clockInTime: null,
                 clockOutTime: null,
-                shiftHours: 0
+                shiftHours: 0,
+                roleId: ''
             }
         };
     },
@@ -381,21 +389,24 @@ export default {
                 const responses = await Promise.all(shiftPromises);
                 this.eventShifts = responses.map(r => r.data);
                 await this.loadEmployees();
+                console.info("Employees:", this.employees);
             } catch (error) {
                 console.error("Error loading shifts:", error);
                 alert("Failed to load shifts");
             }
         },
-
         async loadEmployees() {
             try {
-                const response = await httpClient.get(`/employees`);
-                this.employees = response.data;
+                const response = await httpClient.get('/employees');
+                this.employees = response.data.map(employee => ({
+                    ...employee,
+                    fullName: `${employee.firstName || ''} ${employee.lastName || ''}`.trim(),
+                }));
             } catch (error) {
                 console.error("Error loading employees:", error);
+                alert("Failed to load employees");
             }
         },
-
         openShiftsModal(eventId) {
             this.currentEventId = eventId;
             this.showShiftsModal = true;
@@ -419,7 +430,8 @@ export default {
                 status: "SCHEDULED",
                 clockInTime: null,
                 clockOutTime: null,
-                shiftHours: 0
+                shiftHours: 0,
+                roleId: null
             };
             this.showShiftEditModal = true;
         },
@@ -441,18 +453,24 @@ export default {
 
         async handleShiftSubmit() {
             try {
+                // JSON structure
                 const shiftData = {
-                    ...this.shiftForm,
-                    eventId: this.currentEventId
+                    StartTime: this.shiftForm.startTime,
+                    EndTime: this.shiftForm.endTime,
+                    EmployeeId: this.shiftForm.employeeId,
+                    ShiftType: this.shiftForm.shiftType,
+                    RoleId: this.shiftForm.roleId, 
                 };
 
                 if (this.isEditingShift) {
                     await httpClient.put(`/shifts/${this.shiftForm.id}`, shiftData);
                 } else {
-                    await httpClient.post(`/shifts`, shiftData);
+                    console.info("SHIFT DATA:", shiftData);
 
+                    await httpClient.post(`/shifts`, shiftData);
                 }
 
+                // Reload shifts and close modal after success
                 await this.loadEventShifts(this.currentEventId);
                 this.closeShiftEditModal();
             } catch (error) {
@@ -460,6 +478,7 @@ export default {
                 alert("Failed to save shift");
             }
         },
+
 
         async deleteShift(shiftId) {
             if (confirm("Are you sure you want to delete this shift?")) {
