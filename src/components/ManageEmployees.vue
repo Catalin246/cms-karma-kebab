@@ -45,8 +45,12 @@
               <td class="px-4 py-2 text-black border">{{ employee.dateOfBirth }}</td>
               <td class="px-4 py-2 text-black border">{{ employee.address }}</td>
               <td class="px-4 py-2 text-black border">{{ employee.payrate }}</td>
-              <td class="px-4 py-2 text-black border">{{ employee.roles.map(r => r.roleName).join(', ') }}</td>
-              <td class="px-4 py-2 text-black border">{{ employee.skills.map(s => s.skillName).join(', ') }}</td>
+              <td class="px-4 py-2 text-black border">
+                {{ employee.roles.join(', ') }}
+              </td>
+              <td class="px-4 py-2 text-black border">
+                {{ employee.skills.join(', ') }}
+              </td>
               <td class="px-4 py-2 text-black border">
                 <button
                   class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
