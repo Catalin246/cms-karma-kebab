@@ -169,8 +169,8 @@ export default {
         { name: 'Manage Employees', view: 'employees', icon: 'users' },
         { name: 'Manage Trucks', view: 'trucks', icon: 'truck' },
         { name: 'Manage Tasks', view: 'tasks' },
-        { name: 'Calendar', view: 'calendar', icon: 'calendar-days' },
-        { name: 'Manage Shifts', view: 'shifts', icon: 'shifts' }
+        { name: 'Manage Shifts', view: 'shifts', icon: 'shifts' },
+        { name: 'Calendar', view: 'calendar', icon: 'calendar-days' }
       ],
       events: [],
       employees: [],
