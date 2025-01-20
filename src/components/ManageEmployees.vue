@@ -3,7 +3,7 @@
       <h2 class="text-2xl font-bold text-black">Manage Employees</h2>
       <div class="flex justify-between mb-4">
         <button
-          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          class="bg-green-500 text-white px-4 py-2 mt-3 rounded hover:bg-green-600"
           @click="openAddEmployeeModal"
         >
           Add Employee
