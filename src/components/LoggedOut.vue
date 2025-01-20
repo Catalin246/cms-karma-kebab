@@ -1,31 +1,25 @@
-<!-- LoggedOut.vue -->
 <template>
-    <div class="h-screen w-full flex items-center justify-center bg-gray-800">
-      <div class="text-center">
-        <h1 class="text-3xl font-bold text-red-500 mb-4">Logged Out</h1>
-        <p class="text-xl mb-4 text-white">You have been logged out successfully.</p>
-        <button 
-          @click="loginAgain" 
-          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Login Again
-        </button>
-      </div>
+  <div class="flex justify-center items-center min-h-screen bg-gray-100">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-96 text-center">
+      <h2 class="text-2xl font-bold mb-4 text-violet-600">You're logged out!</h2>
+      <p class="mb-4 text-violet-600">Do you want to login again?</p>
+      <button
+        @click="loginAgain"
+        class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+      >
+        Login Again
+      </button>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    methods: {
-      loginAgain() {
-        // Redirect to the login page to initiate the Keycloak login flow
-        this.$router.push('/login');
-      }
-    }
-  }
-  </script>
-  
-  <style scoped>
-  /* The background color has been changed to dark grey (bg-gray-800) */
-  </style>
-  
+  </div>
+</template>
+
+<script>
+export default {
+  methods: {
+    loginAgain() {
+      console.log("Redirecting to login page...");
+      this.$router.push( "/login" ); 
+    }   
+  },
+};
+</script>
