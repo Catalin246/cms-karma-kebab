@@ -74,6 +74,12 @@
             <ManageEmployees />
           </div>
         </div>
+            <!-- Shifts View -->
+                <div v-if="currentView === 'shifts'" class="space-y-6">
+          <div class="">
+            <ManageShifts />
+          </div>
+        </div>
 
         <!-- Tasks View -->
         <div v-if="currentView === 'tasks'" class="space-y-6">
@@ -114,6 +120,7 @@
 <script>
 import axios from 'axios';
 import ManageTasks from './components/ManageTasks.vue';
+import ManageShifts from './components/ManageShifts.vue';
 import ManageEvents from './components/ManageEvents.vue';
 import ManageTrucks from './components/ManageTrucks.vue';
 import ManageEmployees from './components/ManageEmployees.vue';
@@ -149,6 +156,7 @@ export default {
     ManageTasks,
     ManageEvents,
     ManageTrucks,
+    ManageShifts,
     ManageEmployees,
     CalendarView,
   },
@@ -161,6 +169,7 @@ export default {
         { name: 'Manage Employees', view: 'employees', icon: 'users' },
         { name: 'Manage Trucks', view: 'trucks', icon: 'truck' },
         { name: 'Manage Tasks', view: 'tasks' },
+        { name: 'Manage Shifts', view: 'shifts', icon: 'shifts' },
         { name: 'Calendar', view: 'calendar', icon: 'calendar-days' }
       ],
       events: [],

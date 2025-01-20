@@ -3,7 +3,7 @@
       <h2 class="text-2xl font-bold text-black">Manage Trucks</h2>
       <div class="flex justify-between mb-4">
         <button
-          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          class="bg-green-500 text-white px-4 py-2 mt-3 rounded hover:bg-green-600"
           @click="openAddTruckModal"
         >
           Add Truck
@@ -21,23 +21,22 @@
         <table class="w-full">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-4 py-2 text-left text-black border">ID</th>
+              <th class="px-4 py-2 text-left text-black border">Plate Number</th>
               <th class="px-4 py-2 text-left text-black border">Name</th>
-              <th class="px-4 py-2 text-left text-black border">Status</th>
-              <th class="px-4 py-2 text-left text-black border">Last Maintenance</th>
-              <th class="px-4 py-2 text-left text-black border">Actions</th>
+              <th class="px-4 py-2 text-left text-black border">Description</th>
+              <th class="px-4 py-2 text-left text-black border">Note</th>
             </tr>
           </thead>
           <tbody>
             <tr
               v-for="truck in filteredTrucks"
-              :key="truck.id"
+              :key="truck.plate_number"
               class="border-t"
             >
-              <td class="px-4 py-2 text-black border">{{ truck.id }}</td>
+              <td class="px-4 py-2 text-black border">{{ truck.plate_number }}</td>
               <td class="px-4 py-2 text-black border">{{ truck.name }}</td>
-              <td class="px-4 py-2 text-black border">{{ truck.status }}</td>
-              <td class="px-4 py-2 text-black border">{{ truck.lastMaintenance }}</td>
+              <td class="px-4 py-2 text-black border">{{ truck.description }}</td>
+              <td class="px-4 py-2 text-black border">{{ truck.note }}</td>
               <td class="px-4 py-2 text-black border">
                 <button
                   class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
@@ -47,7 +46,7 @@
                 </button>
                 <button
                   class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                  @click="deleteTruck(truck.id)"
+                  @click="deleteTruck(truck.plate_number)"
                 >
                   Delete
                 </button>
@@ -62,6 +61,16 @@
           <h3 class="text-xl text-violet-700 font-bold mb-4">{{ isEdit ? 'Edit Truck' : 'Add Truck' }}</h3>
           <form @submit.prevent="handleTruckSubmit">
             <div class="mb-4">
+              <label for="truckPlate" class="block text-gray-700">Truck Plate number</label>
+              <input
+                id="truckPlate"
+                v-model="truckForm.plate_number"
+                class="w-full p-2 border rounded bg-white text-gray-900"
+                type="text"
+                required
+              />
+            </div>
+            <div class="mb-4">
               <label for="truckName" class="block text-gray-700">Truck Name</label>
               <input
                 id="truckName"
@@ -71,6 +80,27 @@
                 required
               />
             </div>
+            <div class="mb-4">
+              <label for="truckDescription" class="block text-gray-700">Truck Description</label>
+              <input
+                id="truckDescription"
+                v-model="truckForm.description"
+                class="w-full p-2 border rounded bg-white text-gray-900"
+                type="text"
+                required
+              />
+            </div>
+            <div class="mb-4">
+              <label for="truckNote" class="block text-gray-700">Truck Note</label>
+              <input
+                id="truckNote"
+                v-model="truckForm.note"
+                class="w-full p-2 border rounded bg-white text-gray-900"
+                type="text"
+                required
+              />
+            </div>
+            <!--
             <div class="mb-4">
               <label for="truckStatus" class="block text-gray-700">Truck Status</label>
               <select
@@ -95,6 +125,7 @@
                 required
               />
             </div>
+            -->
             <div class="flex justify-between">
               <button
                 type="submit"
@@ -129,10 +160,10 @@
         showModal: false,
         isEdit: false,
         truckForm: {
-          id: null,
+          plate_number: null,
           name: "",
-          status: "",
-          lastMaintenance: "",
+          description: "",
+          note: "",
         },
         loading: {
           trucks: false,
@@ -166,10 +197,10 @@
       openAddTruckModal() {
         this.isEdit = false;
         this.truckForm = {
-          id: null,
+          plate_number: null,
           name: "",
-          status: "",
-          lastMaintenance: "",
+          description: "",
+          note: "",
         };
         this.showModal = true;
       },
@@ -183,7 +214,7 @@
       },
       async handleTruckSubmit() {
         if (this.isEdit) {
-          await this.editTruck(this.truckForm.id, this.truckForm);
+          await this.editTruck(this.truckForm.plate_number, this.truckForm);
         } else {
           await this.addTruck(this.truckForm);
         }
@@ -199,10 +230,10 @@
           console.error(error);
         }
       },
-      async editTruck(id, truckData) {
+      async editTruck(plate_number, truckData) {
         try {
-          const response = await httpClient.put(`/trucks/${id}`, truckData);
-          const index = this.trucks.findIndex(truck => truck.id === id);
+          const response = await httpClient.put(`/trucks/${plate_number}`, truckData);
+          const index = this.trucks.findIndex(truck => truck.plate_number === plate_number);
           if (index !== -1) this.trucks.splice(index, 1, response.data);
           alert("Truck updated successfully.");
         } catch (error) {
@@ -210,11 +241,11 @@
           console.error(error);
         }
       },
-      async deleteTruck(id) {
+      async deleteTruck(plate_number) {
         try {
-          await httpClient.delete(`/trucks/${id}`);
+          await httpClient.delete(`/trucks/${plate_number}`);
 
-          this.trucks = this.trucks.filter(truck => truck.id !== id);
+          this.trucks = this.trucks.filter(truck => truck.plate_number !== plate_number);
           alert("Truck deleted successfully.");
         } catch (error) {
           alert("Failed to delete truck.");

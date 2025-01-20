@@ -3,7 +3,7 @@
       <h2 class="text-2xl font-bold text-black">Manage Employees</h2>
       <div class="flex justify-between mb-4">
         <button
-          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          class="bg-green-500 text-white px-4 py-2 mt-3 rounded hover:bg-green-600"
           @click="openAddEmployeeModal"
         >
           Add Employee
@@ -45,12 +45,8 @@
               <td class="px-4 py-2 text-black border">{{ employee.dateOfBirth }}</td>
               <td class="px-4 py-2 text-black border">{{ employee.address }}</td>
               <td class="px-4 py-2 text-black border">{{ employee.payrate }}</td>
-              <td class="px-4 py-2 text-black border">
-                {{ employee.roles && employee.roles.length ? employee.roles.join(', ') : 'No roles' }}
-              </td>
-              <td class="px-4 py-2 text-black border">
-                {{ employee.skills && employee.skills.length ? employee.skills.join(', ') : 'No skills' }}
-              </td>
+              <td class="px-4 py-2 text-black border">{{ employee.roles.map(r => r.roleName).join(', ') }}</td>
+              <td class="px-4 py-2 text-black border">{{ employee.skills.map(s => s.skillName).join(', ') }}</td>
               <td class="px-4 py-2 text-black border">
                 <button
                   class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
@@ -193,9 +189,9 @@
           lastName: "",
           address: "",
           payrate: null,
-          roles: [],
+          roles: "",
           email: "",
-          skills: [],
+          skills: "",
         },
         loading: {
           employees: false,
