@@ -28,10 +28,10 @@ jobs:
         run: |
           oc login --token=${{ secrets.OPENSHIFT_TOKEN }} --server=${{ secrets.OPENSHIFT_SERVER }}
 
-      # Step 4: Set OpenShift Project 
+      # Step 4: Set OpenShift Project (replace with your actual project name)
       - name: Set OpenShift Project
         run: |
-          oc project india-dev  
+          oc project india-dev  # Replace with your OpenShift project name
 
       # Step 5: Trigger OpenShift Build
       - name: Start OpenShift Build
