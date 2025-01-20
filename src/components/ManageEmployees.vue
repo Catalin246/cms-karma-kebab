@@ -8,10 +8,11 @@
         >
           Add Employee
         </button>
+          <!-- lets you search employees -->
         <input
           v-model="searchEmployee"
           type="text"
-          placeholder="Search employees"
+          placeholder="Search employees" 
           class="p-2 border rounded text-black"
         />
       </div>
