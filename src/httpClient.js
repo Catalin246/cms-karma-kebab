@@ -1,9 +1,10 @@
 // api/httpClient.js
 import axios from 'axios';
-import keycloakService from './keycloak';
+import { getToken } from './keycloak';
 
 // Create axios instance with default config
 const httpClient = axios.create({
+  // Add your base API URL here
   baseURL: import.meta.env.VITE_APP_API_GATEWAY,
   headers: {
     'Content-Type': 'application/json'
@@ -14,8 +15,7 @@ const httpClient = axios.create({
 httpClient.interceptors.request.use(
   async config => {
     try {
-      const token = localStorage.getItem('access_token');
-      console.log('Token:', token);
+      const token = await getToken();
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -45,7 +45,7 @@ httpClient.interceptors.response.use(
         await window.keycloak.updateToken(70);
         
         // Get new token and retry request
-        const token = ocalStorage.getItem('access_token');
+        const token = await getToken();
         originalRequest.headers.Authorization = `Bearer ${token}`;
         return httpClient(originalRequest);
       } catch (refreshError) {
