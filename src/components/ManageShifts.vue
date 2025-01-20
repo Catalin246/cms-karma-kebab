@@ -77,8 +77,8 @@
                             <label class="block text-gray-700">Shift Type</label>
                             <select v-model="shiftForm.shiftType"
                                 class="w-full p-2 border rounded bg-white text-gray-900" required>
-                                <option value="NORMAL">Normal</option>
-                                <option value="STANDBY">Standby</option>
+                                <option value="Normal">Normal</option>
+                                <option value="Standby">Standby</option>
                             </select>
                         </div>
                         <div>
