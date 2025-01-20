@@ -44,8 +44,12 @@
               <td class="px-4 py-2 text-black border">{{ employee.dateOfBirth }}</td>
               <td class="px-4 py-2 text-black border">{{ employee.address }}</td>
               <td class="px-4 py-2 text-black border">{{ employee.payrate }}</td>
-              <td class="px-4 py-2 text-black border">{{ employee.roles.map(r => r.roleName).join(', ') }}</td>
-              <td class="px-4 py-2 text-black border">{{ employee.skills.map(s => s.skillName).join(', ') }}</td>
+              <td class="px-4 py-2 text-black border">
+                {{ employee.roles && employee.roles.length ? employee.roles.join(', ') : 'No roles' }}
+              </td>
+              <td class="px-4 py-2 text-black border">
+                {{ employee.skills && employee.skills.length ? employee.skills.join(', ') : 'No skills' }}
+              </td>
               <td class="px-4 py-2 text-black border">
                 <button
                   class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
@@ -240,8 +244,8 @@
     this.isEdit = true;
     this.employeeForm = {
       ...employee,
-      roles: employee.roles.map(r => r.roleName), // Now, roles is a list of role names (strings).
-      skills: employee.skills.map(s => s.skillName).join(", "),
+      roles: employee.roles.map(r => r.roles), // Now, roles is a list of role names (strings).
+      skills: employee.skills.map(s => s.skills).join(", "),
     };
     this.showModal = true;
   },
@@ -249,59 +253,57 @@
     this.showModal = false;
   },
   async handleEmployeeSubmit() {
-
-    const rolesArray = this.employeeForm.roles.split(',').map(role => role.trim());
-    // Convert it to the desired format
-    let converted = {
-      "roles": rolesArray.map(item => parseInt(item))
-    };
-
-    console.log(converted);
-    const skillsArray = this.employeeForm.skills.split(',').map(skill => skill.trim());
+    const rolesArray = this.employeeForm.roles.split(',').map(role => parseInt(role.trim(), 10)); // Convert roles to integers
+    const skillsArray = this.employeeForm.skills.split(',').map(skill => parseInt(skill.trim(), 10)); // Convert skills to integers
+    
     const employeeData = {
       ...this.employeeForm,
-      roles: rolesArray,
-      skills: skillsArray,
+      roles: rolesArray,  // Use the converted roles array
+      skills: skillsArray,  // Use the converted skills array
     };
+    
     if (this.isEdit) {
       await this.editEmployee(this.employeeForm.employeeId, this.employeeForm, employeeData);
     } else {
       await this.addEmployee(this.employeeForm);
     }
+    
     this.closeModal();
   },
   async addEmployee(employeeData) {
-    // Convert roles input (comma-separated) into an array of role objects
-    employeeData.roles = employeeData.roles.split(',').map(role => ({
-      roles: role.trim(),
-    }));
+  // Convert roles input (comma-separated) into an array of integers
+  employeeData.roles = employeeData.roles.split(',').map(role => parseInt(role.trim(), 10));
+  
+  // Convert skills input (comma-separated) into an array of integers
+  employeeData.skills = employeeData.skills.split(',').map(skill => parseInt(skill.trim(), 10));
 
-    try {
-      console.log("Sending employee data:", JSON.stringify(employeeData));
-      const response = await httpClient.post("/employees", employeeData);
-      this.employees.push(response.data);
-      alert("Employee added successfully.");
-    } catch (error) {
-      console.error("Failed to add employee:", error);
-      alert("Failed to add employee.");
-    }
-  },
-  async editEmployee(id, employeeData) {
-    // Convert roles input (comma-separated) into an array of role objects
-    employeeData.roles = employeeData.roles.split(',').map(role => ({
-      roleName: role.trim(),
-    }));
+  try {
+    console.log("Sending employee data:", JSON.stringify(employeeData));
+    const response = await httpClient.post("/employees", employeeData);
+    this.employees.push(response.data);
+    alert("Employee added successfully.");
+  } catch (error) {
+    console.error("Failed to add employee:", error);
+    alert("Failed to add employee.");
+  }
+},
+async editEmployee(id, employeeData) {
+  // Convert roles input (comma-separated) into an array of integers
+  employeeData.roles = employeeData.roles.split(',').map(role => parseInt(role.trim(), 10));
 
-    try {
-      const response = await httpClient.put(`/employees/${id}`, employeeData);
-      const index = this.employees.findIndex(employee => employee.employeeId === id);
-      if (index !== -1) this.employees.splice(index, 1, response.data);
-      alert("Employee updated successfully.");
-    } catch (error) {
-      alert("Failed to update employee.");
-      console.error(error);
-    }
-  },
+  // Convert skills input (comma-separated) into an array of integers
+  employeeData.skills = employeeData.skills.split(',').map(skill => parseInt(skill.trim(), 10));
+
+  try {
+    const response = await httpClient.put(`/employees/${id}`, employeeData);
+    const index = this.employees.findIndex(employee => employee.employeeId === id);
+    if (index !== -1) this.employees.splice(index, 1, response.data);
+    alert("Employee updated successfully.");
+  } catch (error) {
+    alert("Failed to update employee.");
+    console.error(error);
+  }
+},
   async deleteEmployee(id) {
     try {
       await httpClient.delete(`/employees/${id}`);
